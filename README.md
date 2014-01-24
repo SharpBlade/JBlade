@@ -67,4 +67,4 @@ Current projects utilizing this or modified versions of this library:
 [bs]: https://github.com/brandonscott
 [rzdev]: http://www.razerzone.com/switchblade-ui/developers
 [jna]: https://github.com/twall/jna
-[jna-platform]: https://github.com/twall/jna/blob/master/www/PlatformLibrary.md
+[jnaplatform]: https://github.com/twall/jna/blob/master/www/PlatformLibrary.md
