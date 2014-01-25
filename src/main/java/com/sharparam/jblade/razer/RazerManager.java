@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer;
 
+import com.sun.jna.platform.win32.WinDef;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -35,7 +37,8 @@ import java.io.IOException;
  * Created on 2014-01-24.
  * @author Sharparam
  */
-public class RazerManager {
+public class RazerManager implements RazerAPI.AppEventCallbackFunction,
+        RazerAPI.DynamicKeyCallbackFunction, RazerAPI.KeyboardCallbackFunction {
     /**
      * The file name to use when creating the control file.
      */
@@ -109,5 +112,23 @@ public class RazerManager {
         } catch (IOException ex) {
             // TODO: Throw error
         }
+    }
+
+    // App event handler
+    @Override
+    public int invoke(RazerAPI.AppEventType appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
+        return 0;
+    }
+
+    // Dynamic key event handler
+    @Override
+    public int invoke(RazerAPI.DynamicKeyType dynamicKeyType, RazerAPI.DynamicKeyState dynamicKeyState) {
+        return 0;
+    }
+
+    // Keyboard event handler
+    @Override
+    public int invoke(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam) {
+        return 0;
     }
 }
