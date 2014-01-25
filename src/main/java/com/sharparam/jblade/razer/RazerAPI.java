@@ -28,10 +28,14 @@
 
 package com.sharparam.jblade.razer;
 
+import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
+import com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
+
+import java.util.EnumSet;
 
 /**
  * Created on 2014-01-24.
@@ -72,6 +76,186 @@ public interface RazerAPI extends Library {
     interface KeyboardCallbackFunction extends StdCallLibrary.StdCallCallback {
         // TODO: Make HRESULT class for return type? Is this feasible in Java?
         int invoke(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
+    }
+
+    enum DynamicKeyState {
+        NONE,
+        UP,
+        DOWN,
+        HOLD,
+        INVALID
+    }
+
+    enum Direction {
+        NONE,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN,
+        INVALID
+    }
+
+    enum DynamicKeyType {
+        NONE,
+        DK1,
+        DK2,
+        DK3,
+        DK4,
+        DK5,
+        DK6,
+        DK7,
+        DK8,
+        DK9,
+        DK10,
+        INVALID;
+
+        public static final int COUNT = 10;
+    }
+
+    enum TargetDisplay {
+        WIDGET (0x10000),
+        DK1    (0x10001),
+        DK2    (0x10002),
+        DK3    (0x10003),
+        DK4    (0x10004),
+        DK5    (0x10005),
+        DK6    (0x10006),
+        DK7    (0x10007),
+        DK8    (0x10008),
+        DK9    (0x10009),
+        DK10   (0x1000A);
+
+        private final int val;
+
+        private TargetDisplay(int val) {
+            this.val = val;
+        }
+
+        public TargetDisplay getTargetDisplayFromApiValue(int val) throws RazerInvalidTargetDisplayException {
+            for (TargetDisplay disp : TargetDisplay.values()) {
+                if (disp.getVal() == val)
+                    return disp;
+            }
+
+            throw new RazerInvalidTargetDisplayException(val);
+        }
+
+        public int getVal() {
+            return val;
+        }
+    }
+
+    enum PixelType {
+        RGB565
+    }
+
+    enum AppEventType {
+        NONE,
+        ACTIVATED,
+        DEACTIVATED,
+        CLOSE,
+        EXIT,
+        INVALID
+    }
+
+    enum AppEventMode {
+        APPLET (0x02),
+        NORMAL (0x04);
+
+        private final int val;
+
+        private AppEventMode(int val) {
+            this.val = val;
+        }
+
+        public AppEventMode getAppEventModeFromApiValue(int val) throws RazerInvalidAppEventModeException {
+            for (AppEventMode mode : AppEventMode.values()) {
+                if (mode.getVal() == val)
+                    return mode;
+            }
+
+            throw new RazerInvalidAppEventModeException(val);
+        }
+
+        public int getVal() {
+            return val;
+        }
+    }
+
+    enum GestureType {
+        NONE    (0x0000),
+        PRESS   (0x0001),
+        TAP     (0x0002),
+        FLICK   (0x0004),
+        ZOOM    (0x0008),
+        ROTATE  (0x0010),
+        MOVE    (0x0020),
+        HOLD    (0x0040),
+        RELEASE (0x0080),
+        SCROLL  (0x0100),
+        ALL     (0xFFFF);
+
+        private final int flagValue;
+
+        private GestureType(int val) {
+            flagValue = val;
+        }
+
+        public static EnumSet<GestureType> combine(GestureType arg1, GestureType arg2) {
+            return EnumSet.of(arg1, arg2);
+        }
+
+        public static EnumSet<GestureType> getFromApiValue(int value) {
+            EnumSet<GestureType> result = EnumSet.noneOf(GestureType.class);
+
+            if ((value & PRESS.getFlagValue()) != 0)
+                result.add(PRESS);
+
+            if ((value & TAP.getFlagValue()) != 0)
+                result.add(TAP);
+
+            if ((value & FLICK.getFlagValue()) != 0)
+                result.add(FLICK);
+
+            if ((value & ZOOM.getFlagValue()) != 0)
+                result.add(ZOOM);
+
+            if ((value & ROTATE.getFlagValue()) != 0)
+                result.add(ROTATE);
+
+            if ((value & MOVE.getFlagValue()) != 0)
+                result.add(MOVE);
+
+            if ((value & HOLD.getFlagValue()) != 0)
+                result.add(HOLD);
+
+            if ((value & RELEASE.getFlagValue()) != 0)
+                result.add(RELEASE);
+
+            if ((value & SCROLL.getFlagValue()) != 0)
+                result.add(SCROLL);
+
+            if (result.isEmpty())
+                result.add(NONE); // This is probably useless?
+            else if (result.equals(EnumSet.range(PRESS, SCROLL)))
+                result.add(ALL);
+
+            return result;
+        }
+
+        public static int convertToInteger(EnumSet<GestureType> set) {
+            int result = 0;
+
+            for (GestureType type : set) {
+                result |= type.getFlagValue();
+            }
+
+            return result;
+        }
+
+        public int getFlagValue() {
+            return flagValue;
+        }
     }
 
     int RzSBStart();
