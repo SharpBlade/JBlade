@@ -32,16 +32,21 @@ import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Created on 2014-01-24.
  * @author Sharparam
  */
 public interface RazerAPI extends Library {
+    // TODO: Make HRESULT class for return type? Is this feasible in Java?
+
     static final String DLL_NAME = "RzSwitchbladeSDK2.dll";
 
     static final RazerAPI INSTANCE = (RazerAPI) Native.loadLibrary(DLL_NAME, RazerAPI.class);
@@ -62,19 +67,19 @@ public interface RazerAPI extends Library {
     static final int PIXEL_FORMAT_RGB565 = 1;
 
     interface DynamicKeyCallbackFunction extends StdCallLibrary.StdCallCallback {
-        // TODO: Add invoke method
+        int invoke(DynamicKeyType dynamicKeyType, DynamicKeyState dynamicKeyState);
     }
 
     interface AppEventCallbackFunction extends StdCallLibrary.StdCallCallback {
-        // TODO: Add invoke method
+        int invoke(AppEventType appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID);
     }
 
     interface TouchpadGestureCallbackFunction extends StdCallLibrary.StdCallCallback {
-        // TODO: Add invoke method
+        int invoke(GestureType gestureType, WinDef.UINT dwParameters,
+                   WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos);
     }
 
     interface KeyboardCallbackFunction extends StdCallLibrary.StdCallCallback {
-        // TODO: Make HRESULT class for return type? Is this feasible in Java?
         int invoke(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
     }
 
@@ -258,9 +263,23 @@ public interface RazerAPI extends Library {
         }
     }
 
+    enum HardwareType {
+        INVALID,
+        SWITCHBLADE,
+        UNDEFINED
+    }
+
     int RzSBStart();
 
     void RzSBStop();
+
+    int RzSBQueryCapabilities(Capabilities.ByReference capabilities);
+
+    int RzSBRenderBuffer(TargetDisplay target, BufferParams.ByValue bufferParams);
+
+    int RzSBSetImageDynamicKey(DynamicKeyType dk, DynamicKeyState state, String filename);
+
+    int RzSBSetImageTouchpad(String filename);
 
     int RzSBAppEventSetCallback(AppEventCallbackFunction callback);
 
@@ -271,4 +290,51 @@ public interface RazerAPI extends Library {
     int RzSBKeyboardCaptureSetCallback(KeyboardCallbackFunction callback);
 
     int RzSBGestureSetCallback(TouchpadGestureCallbackFunction callback);
+
+    int RzSBEnableGesture(int gestureType, boolean enable);
+
+    int RzSBEnableOSGesture(int gestureType, boolean enable);
+
+    class Point extends Structure {
+        public int x;
+        public int y;
+
+        @Override
+        protected List getFieldOrder() {
+            return Arrays.asList("x", "y");
+        }
+    }
+
+    class Capabilities extends Structure {
+        public static class ByReference extends Capabilities implements Structure.ByReference { }
+
+        public WinDef.ULONG version;
+        public WinDef.ULONG beVersion;
+        public HardwareType hardwareType;
+        public WinDef.ULONG numSurfaces;
+        public Point[] surfaceGeometry;
+        public WinDef.UINT[] pixelFormat;
+        public WinDef.BYTE numDynamicKeys;
+        public Point dynamicKeyArrangement;
+        public Point dynamicKeySize;
+
+        @Override
+        protected List getFieldOrder() {
+            return Arrays.asList("version", "beVersion", "hardwareType", "numSurfaces", "surfaceGeometry",
+                                 "pixelFormat", "numDynamicKeys", "dynamicKeyArrangement", "dynamicKeySize");
+        }
+    }
+
+    class BufferParams extends Structure {
+        public static class ByValue extends BufferParams implements Structure.ByValue { }
+
+        public PixelType pixelType;
+        public WinDef.UINT dataSize;
+        public WinDef.INT_PTR ptrData;
+
+        @Override
+        protected List getFieldOrder() {
+            return Arrays.asList("pixelType", "dataSize", "ptrData");
+        }
+    }
 }
