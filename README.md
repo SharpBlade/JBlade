@@ -61,7 +61,7 @@ If you want log4j to output to a file, you can put the following in your classpa
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
-<Configuration status="warn" name="JBlade>
+<Configuration status="warn" name="JBlade">
   <Appenders>
     <File name="File" fileName="app.log" append="false"> <!-- Change filename if desired -->
       <PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{36} - %msg%n" />
