@@ -30,10 +30,8 @@ package com.sharparam.jblade.razer;
 
 import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException;
-import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
-import com.sun.jna.platform.win32.W32Errors;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
 
@@ -42,23 +40,23 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
- * Interface for native RazerAPI functions provided by the Razer SwitchBlade UI SDK.
- * Native functions from <code>RzSwitchbladeSDK2.dll</code>, all functions are <code>__cdecl</code> calls.
+ * Created on 2014-01-25.
+ *
  * @author Sharparam
  */
-public interface RazerAPI extends Library {
-    // TODO: Make HRESULT class for return type? Is this feasible in Java?
-
+public class RazerAPI {
     /**
      * The DLL file containing the SDK functions.
      * Must be located in the system PATH.
      */
-    static final String DLL_NAME = "RzSwitchbladeSDK2.dll";
+    public static final String DLL_NAME = "RzSwitchbladeSDK2.dll";
 
     /**
-     * RazerAPI instance object used in code.
+     * RazerLibrary instance object used in code.
      */
-    static final RazerAPI INSTANCE = (RazerAPI) Native.loadLibrary(DLL_NAME, RazerAPI.class);
+    public static final RazerAPI INSTANCE = new RazerAPI();
+
+    private final RazerLibrary lib;
 
     /*
      * Definitions for the Dynamic Key display region of the Switchblade.
@@ -67,34 +65,34 @@ public interface RazerAPI extends Library {
     /**
      * Number of dynamic keys per row on the device.
      */
-    static final int DYNAMIC_KEYS_PER_ROW = 5;
+    public static final int DYNAMIC_KEYS_PER_ROW = 5;
 
     /**
      * Number of rows on the dynamic keys.
      */
-    static final int DYNAMIC_KEY_ROWS = 2;
+    public static final int DYNAMIC_KEY_ROWS = 2;
 
     /**
      * Total number of dynamic keys that exist on the device.
      */
-    static final int DYNAMIC_KEYS_COUNT = DYNAMIC_KEYS_PER_ROW * DYNAMIC_KEY_ROWS;
+    public static final int DYNAMIC_KEYS_COUNT = DYNAMIC_KEYS_PER_ROW * DYNAMIC_KEY_ROWS;
 
     /**
      * The width of one dynamic key, in pixels.
      * Note that this refers to the width of the display area on a dynamic key, not physical size.
      */
-    static final int DYNAMIC_KEY_WIDTH = 115;
+    public static final int DYNAMIC_KEY_WIDTH = 115;
 
     /**
      * The height of one dynamic key, in pixels.
      * Note that this refers to the height of the display area on a dynamic key, not physical size.
      */
-    static final int DYNAMIC_KEY_HEIGHT = 115;
+    public static final int DYNAMIC_KEY_HEIGHT = 115;
 
     /**
      * Size of image data for one dynamic key.
      */
-    static final int DYNAMIC_KEY_IMAGE_DATA_SIZE = DYNAMIC_KEY_WIDTH * DYNAMIC_KEY_HEIGHT * 2;
+    public static final int DYNAMIC_KEY_IMAGE_DATA_SIZE = DYNAMIC_KEY_WIDTH * DYNAMIC_KEY_HEIGHT * 2;
 
     /*
      * Definitions for the Touchpad display region of the Switchblade.
@@ -103,42 +101,42 @@ public interface RazerAPI extends Library {
     /**
      * Width of the touchpad on standard devices.
      */
-    static final int TOUCHPAD_WIDTH = 800;
+    public static final int TOUCHPAD_WIDTH = 800;
 
     /**
      * Height of the touchpad on standard devices.
      */
-    static final int TOUCHPAD_HEIGHT = 480;
+    public static final int TOUCHPAD_HEIGHT = 480;
 
     /**
      * Size of image data to cover the touchpad.
      */
-    static final int TOUCHPAD_IMAGE_DATA_SIZE = TOUCHPAD_WIDTH * TOUCHPAD_HEIGHT * 2;
+    public static final int TOUCHPAD_IMAGE_DATA_SIZE = TOUCHPAD_WIDTH * TOUCHPAD_HEIGHT * 2;
 
     /**
      * Color depth of the device's display areas.
      */
-    static final int DISPLAY_COLOR_DEPTH = 16;
+    public static final int DISPLAY_COLOR_DEPTH = 16;
 
     /**
      * Max string length.
      */
-    static final int MAX_STRING_LENGTH = 260;
+    public static final int MAX_STRING_LENGTH = 260;
 
     /**
      * Maximum supported surfaces.
      */
-    static final int MAX_SUPPORTED_SURFACES = 2;
+    public static final int MAX_SUPPORTED_SURFACES = 2;
 
     /**
      * Invalid pixel format.
      */
-    static final int PIXEL_FORMAT_INVALID = 0;
+    public static final int PIXEL_FORMAT_INVALID = 0;
 
     /**
      * RGB565 pixel format, used by standard SwitchBlade devices.
      */
-    static final int PIXEL_FORMAT_RGB565 = 1;
+    public static final int PIXEL_FORMAT_RGB565 = 1;
 
     /**
      * Interface implementing invoke function for the dynamic key callback.
@@ -201,7 +199,7 @@ public interface RazerAPI extends Library {
     /**
      * Possible states of a dynamic key.
      */
-    enum DynamicKeyState {
+    public enum DynamicKeyState {
         /**
          * No active state.
          */
@@ -231,7 +229,7 @@ public interface RazerAPI extends Library {
     /**
      * Direction of motion/gesture.
      */
-    enum Direction {
+    public enum Direction {
         /**
          * No direction.
          */
@@ -266,7 +264,7 @@ public interface RazerAPI extends Library {
     /**
      * Dynamic keys available on the SwitchBlade device.
      */
-    enum DynamicKeyType {
+    public enum DynamicKeyType {
         /**
          * None of the keys.
          */
@@ -338,7 +336,7 @@ public interface RazerAPI extends Library {
      * Target displays available on SwitchBlade device.
      * NOTE: When passed to API functions, use {@link #getVal()}.
      */
-    enum TargetDisplay {
+    public enum TargetDisplay {
         /**
          * The touchpad screen.
          */
@@ -404,7 +402,7 @@ public interface RazerAPI extends Library {
          * Converts integer value returned from API functions to a TargetDisplay value.
          * @param val Integer value returned from API functions.
          * @return TargetDisplay value.
-         * @throws RazerInvalidTargetDisplayException If the passed in integer value is invalid,
+         * @throws com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException If the passed in integer value is invalid,
          *                                            a RazerInvalidTargetDisplayException is thrown.
          */
         public TargetDisplay getTargetDisplayFromApiValue(int val) throws RazerInvalidTargetDisplayException {
@@ -417,8 +415,8 @@ public interface RazerAPI extends Library {
         }
 
         /**
-         * Gets a RazerAPI compatible representation of this TargetDisplay value.
-         * @return A value usable with RazerAPI.
+         * Gets a RazerLibrary compatible representation of this TargetDisplay value.
+         * @return A value usable with RazerLibrary.
          */
         public int getVal() {
             return val;
@@ -428,7 +426,7 @@ public interface RazerAPI extends Library {
     /**
      * Supported pixel formats.
      */
-    enum PixelType {
+    public enum PixelType {
         /**
          * RGB565 pixel format.
          */
@@ -438,7 +436,7 @@ public interface RazerAPI extends Library {
     /**
      * App event types used by Razer's AppEvent callback system.
      */
-    enum AppEventType {
+    public enum AppEventType {
         /**
          * No/empty app event.
          */
@@ -480,7 +478,7 @@ public interface RazerAPI extends Library {
      * Mode that app is running in.
      * NOTE: When passed to API functions, use {@link #getVal()}.
      */
-    enum AppEventMode {
+    public enum AppEventMode {
         /**
          * Running in applet mode.
          */
@@ -499,10 +497,10 @@ public interface RazerAPI extends Library {
 
         /**
          * Converts integer value returned from API functions to an
-         * {@link com.sharparam.jblade.razer.RazerAPI.AppEventMode} value.
+         * {@link RazerLibrary.AppEventMode} value.
          * @param val Integer value returned from API functions.
          * @return AppEventMode value.
-         * @throws RazerInvalidAppEventModeException If the passed in integer value is invalid,
+         * @throws com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException If the passed in integer value is invalid,
          *                                           a RazerInvalidTargetDisplayException is thrown.
          */
         public AppEventMode getAppEventModeFromApiValue(int val) throws RazerInvalidAppEventModeException {
@@ -515,9 +513,9 @@ public interface RazerAPI extends Library {
         }
 
         /**
-         * Gets a RazerAPI compatible representation of this
-         * {@link com.sharparam.jblade.razer.RazerAPI.AppEventMode} value.
-         * @return A value usable with RazerAPI.
+         * Gets a RazerLibrary compatible representation of this
+         * {@link RazerLibrary.AppEventMode} value.
+         * @return A value usable with RazerLibrary.
          */
         public int getVal() {
             return val;
@@ -528,7 +526,7 @@ public interface RazerAPI extends Library {
      * Gesture types supported by the device.
      * NOTE: When passing a GestureType value to the Switchblade API, use the {@link #getFlagValue()} method.
      */
-    enum GestureType {
+    public enum GestureType {
         /**
          * Invalid or no gesture.
          */
@@ -591,8 +589,8 @@ public interface RazerAPI extends Library {
         }
 
         /**
-         * Converts an integer value returned from RazerAPI to an EnumSet containing all relevant
-         * {@link com.sharparam.jblade.razer.RazerAPI.GestureType} flags.
+         * Converts an integer value returned from RazerLibrary to an EnumSet containing all relevant
+         * {@link RazerLibrary.GestureType} flags.
          * @param value The API integer value to convert.
          * @return An EnumSet with the GestureType values contained in the integer.
          */
@@ -650,8 +648,8 @@ public interface RazerAPI extends Library {
         }
 
         /**
-         * Gets the flag value of this gesture, compatible with RazerAPI functions.
-         * @return A value compatible with RazerAPI for this gesture.
+         * Gets the flag value of this gesture, compatible with RazerLibrary functions.
+         * @return A value compatible with RazerLibrary for this gesture.
          */
         public int getFlagValue() {
             return flagValue;
@@ -662,7 +660,7 @@ public interface RazerAPI extends Library {
      * Different hardware types returned by
      * {@link #RzSBQueryCapabilities(com.sharparam.jblade.razer.RazerAPI.Capabilities.ByReference)}.
      */
-    enum HardwareType {
+    public enum HardwareType {
         /**
          * Invalid hardware.
          */
@@ -679,7 +677,7 @@ public interface RazerAPI extends Library {
         UNDEFINED
     }
 
-    enum Hresult {
+    public enum Hresult {
         /**
          * Unknown error.
          */
@@ -878,7 +876,7 @@ public interface RazerAPI extends Library {
 
         // Useless?
         /**
-         * Checks if a given {@link com.sharparam.jblade.razer.RazerAPI.Hresult} value means success.
+         * Checks if a given {@link RazerLibrary.Hresult} value means success.
          * @param value Value to check.
          * @return True if successful, false otherwise.
          */
@@ -895,9 +893,17 @@ public interface RazerAPI extends Library {
             return value == RZSB_OK.getVal();
         }
 
+        /**
+         * Checks if this value means success.
+         * @return True if successful, false otherwise.
+         */
+        public boolean success() {
+            return this == RZSB_OK;
+        }
+
         // Useless?
         /**
-         * Checks if a given {@link com.sharparam.jblade.razer.RazerAPI.Hresult} value is erroneous.
+         * Checks if a given {@link RazerAPI.Hresult} value is erroneous.
          * @param value Value to check.
          * @return True if erroneous, false otherwise.
          */
@@ -912,6 +918,14 @@ public interface RazerAPI extends Library {
          */
         public static boolean failed(int value) {
             return value != RZSB_OK.getVal();
+        }
+
+        /**
+         * Checks if this value is erroneous.
+         * @return True if erroneous, false otherwise.
+         */
+        public boolean failed() {
+            return this != RZSB_OK;
         }
 
         /**
@@ -937,6 +951,10 @@ public interface RazerAPI extends Library {
         }
     }
 
+    private RazerAPI() {
+        this.lib = (RazerLibrary) Native.loadLibrary(DLL_NAME, RazerLibrary.class);
+    }
+
     /**
      * Grants access to the Switchblade device, establishing application connections.
      * This method sets up the connections that allow an application to access the Switchblade hardware device.
@@ -960,7 +978,9 @@ public interface RazerAPI extends Library {
      * initialization and calls to avoid the issues for COM in different threading models.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBStart();
+    public Hresult RzSBStart() {
+        return Hresult.getFromApiValue(lib.RzSBStart());
+    }
 
     /**
      * Cleans up the Switchblade device connections and releases it for other applications.
@@ -973,7 +993,9 @@ public interface RazerAPI extends Library {
      * other applications may fail to acquire control of the Switchblade device.
      * In this case, manually kill the framework processes.
      */
-    void RzSBStop();
+    public void RzSBStop() {
+        lib.RzSBStop();
+    }
 
     /**
      * Collects information about the SDK and the hardware supported.
@@ -982,7 +1004,9 @@ public interface RazerAPI extends Library {
      *                     proper information about the SDK and supported hardware.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBQueryCapabilities(Capabilities.ByReference capabilities);
+    public Hresult RzSBQueryCapabilities(Capabilities.ByReference capabilities) {
+        return Hresult.getFromApiValue(lib.RzSBQueryCapabilities(capabilities));
+    }
 
     /**
      * Controls output to the Switchblade display.
@@ -999,7 +1023,9 @@ public interface RazerAPI extends Library {
      *                     Please refer to the definition for BufferParams for further detail.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBRenderBuffer(int target, BufferParams.ByValue bufferParams);
+    public Hresult RzSBRenderBuffer(TargetDisplay target, BufferParams.ByValue bufferParams) {
+        return Hresult.getFromApiValue(lib.RzSBRenderBuffer(target.getVal(), bufferParams));
+    }
 
     /**
      * Set images on the Switchblade UI’s Dynamic Keys.
@@ -1010,7 +1036,9 @@ public interface RazerAPI extends Library {
      *                 Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBSetImageDynamicKey(DynamicKeyType dk, DynamicKeyState state, String filename);
+    public Hresult RzSBSetImageDynamicKey(DynamicKeyType dk, DynamicKeyState state, String filename) {
+        return Hresult.getFromApiValue(lib.RzSBSetImageDynamicKey(dk, state, filename));
+    }
 
     /**
      * Places an image on the main Switchblade display.
@@ -1019,21 +1047,27 @@ public interface RazerAPI extends Library {
      *                 This image should be 800 x 480 pixels in dimension. Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBSetImageTouchpad(String filename);
+    public Hresult RzSBSetImageTouchpad(String filename) {
+        return Hresult.getFromApiValue(lib.RzSBSetImageTouchpad(filename));
+    }
 
     /**
      * Sets the callback function for application event callbacks.
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBAppEventSetCallback(AppEventCallbackFunction callback);
+    public Hresult RzSBAppEventSetCallback(AppEventCallbackFunction callback) {
+        return Hresult.getFromApiValue(lib.RzSBAppEventSetCallback(callback));
+    }
 
     /**
      * Sets the callback function for dynamic key events.
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBDynamicKeySetCallback(DynamicKeyCallbackFunction callback);
+    public Hresult RzSBDynamicKeySetCallback(DynamicKeyCallbackFunction callback) {
+        return Hresult.getFromApiValue(lib.RzSBDynamicKeySetCallback(callback));
+    }
 
     /**
      * Enables or disables the keyboard capture functionality.
@@ -1045,50 +1079,88 @@ public interface RazerAPI extends Library {
      * @param enable The enable state. true enables the capture while false disables it.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBCaptureKeyboard(boolean enable);
+    public Hresult RzSBCaptureKeyboard(boolean enable) {
+        return Hresult.getFromApiValue(lib.RzSBCaptureKeyboard(enable));
+    }
 
     /**
      * Sets the callback function for keyboard events.
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBKeyboardCaptureSetCallback(KeyboardCallbackFunction callback);
+    public Hresult RzSBKeyboardCaptureSetCallback(KeyboardCallbackFunction callback) {
+        return Hresult.getFromApiValue(lib.RzSBKeyboardCaptureSetCallback(callback));
+    }
 
     /**
      * Sets the callback function for gesture events.
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBGestureSetCallback(TouchpadGestureCallbackFunction callback);
+    public Hresult RzSBGestureSetCallback(TouchpadGestureCallbackFunction callback) {
+        return Hresult.getFromApiValue(lib.RzSBGestureSetCallback(callback));
+    }
 
     /**
      * Enables or disables gesture events.
      * In nearly all cases, gestural events are preceded by a
-     * {@link com.sharparam.jblade.razer.RazerAPI.GestureType#PRESS} event.
+     * {@link RazerAPI.GestureType#PRESS} event.
      * With multiple finger gestures, the first finger contact registers as a press,
      * and the touchpad reports subsequent contacts as the appropriate compound gesture (tap, flick, zoom or rotate).
      * @param gestureType GestureType to be enabled or disabled.
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
-    int RzSBEnableGesture(int gestureType, boolean enable);
+    public Hresult RzSBEnableGesture(GestureType gestureType, boolean enable) {
+        return RzSBEnableGesture(EnumSet.of(gestureType), enable);
+    }
+
+    /**
+     * Enables or disables gesture events.
+     * In nearly all cases, gestural events are preceded by a
+     * {@link RazerAPI.GestureType#PRESS} event.
+     * With multiple finger gestures, the first finger contact registers as a press,
+     * and the touchpad reports subsequent contacts as the appropriate compound gesture (tap, flick, zoom or rotate).
+     * @param gestureType Set of GestureType to be enabled or disabled.
+     * @param enable The enable state. true enables the gesture while false disables it.
+     * @return HRESULT object indicating success or failure.
+     */
+    public Hresult RzSBEnableGesture(EnumSet<GestureType> gestureType, boolean enable) {
+        return Hresult.getFromApiValue(lib.RzSBEnableGesture(GestureType.convertToInteger(gestureType), enable));
+    }
 
     /**
      * Enables or disables gesture event forwarding to the OS.
-     * Setting the {@link com.sharparam.jblade.razer.RazerAPI.GestureType#PRESS} for OS gesture is equivalent to
-     * {@link com.sharparam.jblade.razer.RazerAPI.GestureType#PRESS},
-     * {@link com.sharparam.jblade.razer.RazerAPI.GestureType#MOVE} and
-     * {@link com.sharparam.jblade.razer.RazerAPI.GestureType#RELEASE}.
+     * Setting the {@link RazerAPI.GestureType#PRESS} for OS gesture is equivalent to
+     * {@link RazerAPI.GestureType#PRESS},
+     * {@link RazerAPI.GestureType#MOVE} and
+     * {@link RazerAPI.GestureType#RELEASE}.
      * @param gestureType GestureType to be enabled or disabled.
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
-    int RzSBEnableOSGesture(int gestureType, boolean enable);
+    public Hresult RzSBEnableOSGesture(GestureType gestureType, boolean enable) {
+        return RzSBEnableOSGesture(EnumSet.of(gestureType), enable);
+    }
+
+    /**
+     * Enables or disables gesture event forwarding to the OS.
+     * Setting the {@link RazerAPI.GestureType#PRESS} for OS gesture is equivalent to
+     * {@link RazerAPI.GestureType#PRESS},
+     * {@link RazerAPI.GestureType#MOVE} and
+     * {@link RazerAPI.GestureType#RELEASE}.
+     * @param gestureType Set of GestureType to be enabled or disabled.
+     * @param enable The enable state. true enables the gesture while false disables it.
+     * @return HRESULT object indicating success or failure.
+     */
+    public Hresult RzSBEnableOSGesture(EnumSet<GestureType> gestureType, boolean enable) {
+        return Hresult.getFromApiValue(lib.RzSBEnableOSGesture(GestureType.convertToInteger(gestureType), enable));
+    }
 
     /**
      * Specifies a specific point on the touchpad.
      */
-    class Point extends Structure {
+    public static class Point extends Structure {
         /**
          * X position on the touchpad.
          */
@@ -1108,7 +1180,7 @@ public interface RazerAPI extends Library {
     /**
      * Specifies the capabilities of this SwitchBlade device.
      */
-    class Capabilities extends Structure {
+    public static class Capabilities extends Structure {
         public static class ByReference extends Capabilities implements Structure.ByReference { }
 
         /**
@@ -1175,7 +1247,7 @@ public interface RazerAPI extends Library {
     /**
      * Buffer data sent to display when rendering image data.
      */
-    class BufferParams extends Structure {
+    public static class BufferParams extends Structure {
         public static class ByValue extends BufferParams implements Structure.ByValue { }
 
         /**
