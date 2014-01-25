@@ -53,7 +53,29 @@ log4j can be found in Maven repositories
 Debugging / Logging
 -------------------
 
-...
+log4j (the logging library that JBlade uses) outputs log information to the standard output stream by default,
+if it fails to detect any log4j config information in the classpath.
+
+If you want log4j to output to a file, you can put the following in your classpath
+(working directory of the application should work):
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="warn" name="JBlade>
+  <Appenders>
+    <File name="File" fileName="app.log" append="false"> <!-- Change filename if desired -->
+      <PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{36} - %msg%n" />
+    </File>
+  </Appenders>
+  <Loggers>
+    <Root level="info"> <!-- Change "info" to "debug" to make logging more verbose -->
+      <AppenderRef ref="File" />
+    </root>
+  </Loggers>
+</Configuration>
+```
+
+This will cause log output to be saved in a file named "app.log" in the same directory as the application.
 
 Projects
 --------
