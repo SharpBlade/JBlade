@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: jna-platform-4.0.0.jar jna-4.0.0.jar log4j-api-2.0-beta9.j
+ ar jna-4.0.0.jar log4j-core-2.0-beta9.jar log4j-api-2.0-beta9.jar cor
+ e-4.3.0.jar javax.servlet-api-3.0.1.jar
+
