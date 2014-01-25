@@ -46,6 +46,10 @@ JBlade depends on the [JNA][jna] and [jna-platform][jnaplatform] libraries, both
 JNA and the platform library can be found in Maven repositories
 (net.java.dev.jna:jna:4.0.0 and net.java.dev.jna:jna-platform:4.0.0).
 
+JBlade depends on the [log4j][] library, version 2.0-beta9.
+log4j can be found in Maven repositories
+(org.apache.logging.log4j:log4j-api:2.0-beta9 and org.apache.logging.log4j:log4j-core:2.0-beta9).
+
 Debugging / Logging
 -------------------
 
@@ -68,3 +72,4 @@ Current projects utilizing this or modified versions of this library:
 [rzdev]: http://www.razerzone.com/switchblade-ui/developers
 [jna]: https://github.com/twall/jna
 [jnaplatform]: https://github.com/twall/jna/blob/master/www/PlatformLibrary.md
+[log4j]: http://logging.apache.org/log4j/2.x/index.html
