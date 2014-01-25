@@ -497,7 +497,8 @@ public interface RazerAPI extends Library {
         }
 
         /**
-         * Converts integer value returned from API functions to an AppEventMode value.
+         * Converts integer value returned from API functions to an
+         * {@link com.sharparam.jblade.razer.RazerAPI.AppEventMode} value.
          * @param val Integer value returned from API functions.
          * @return AppEventMode value.
          * @throws RazerInvalidAppEventModeException If the passed in integer value is invalid,
@@ -513,7 +514,8 @@ public interface RazerAPI extends Library {
         }
 
         /**
-         * Gets a RazerAPI compatible representation of this AppEventMode value.
+         * Gets a RazerAPI compatible representation of this
+         * {@link com.sharparam.jblade.razer.RazerAPI.AppEventMode} value.
          * @return A value usable with RazerAPI.
          */
         public int getVal() {
@@ -589,7 +591,7 @@ public interface RazerAPI extends Library {
 
         /**
          * Converts an integer value returned from RazerAPI to an EnumSet containing all relevant
-         * GestureType flags.
+         * {@link com.sharparam.jblade.razer.RazerAPI.GestureType} flags.
          * @param value The API integer value to convert.
          * @return An EnumSet with the GestureType values contained in the integer.
          */
@@ -674,6 +676,67 @@ public interface RazerAPI extends Library {
          * Unknown device type.
          */
         UNDEFINED
+    }
+
+    enum Hresult {
+        UNKNOWN                       (-1),
+        RZSB_OK                       (0x00000000),
+        RZSB_UNSUCCESSFUL             (0x80004005),
+        RZSB_INVALID_PARAMETER        (0x80070057),
+        RZSB_INVALID_POINTER          (0x80004003),
+        RZSB_ABORTED                  (0x80004004),
+        RZSB_NO_INTERFACE             (0x80004002),
+        RZSB_NOT_IMPLEMENTED          (0x80004001),
+        RZSB_FILE_NOT_FOUND           (0x00000002),
+        RZSB_GENERIC_BASE             (0x20000000),
+        RZSB_FILE_ZERO_SIZE           (0x20000001),
+        RZSB_FILE_INVALID_NAME        (0x20000002),
+        RZSB_FILE_INVALID_TYPE        (0x20000003),
+        RZSB_FILE_READ_ERROR          (0x20000004),
+        RZSB_FILE_INVALID_FORMAT      (0x20000005),
+        RZSB_FILE_INVALID_LENGTH      (0x20000006),
+        RZSB_FILE_NAMEPATH_TOO_LONG   (0x20000007),
+        RZSB_IMAGE_INVALID_SIZE       (0x20000008),
+        RZSB_IMAGE_INVALID_DATA       (0x20000009),
+        RZSB_WIN_VERSION_INVALID      (0x2000000A),
+        RZSB_CALLBACK_BASE            (0x20010000),
+        RZSB_CALLBACK_NOT_SET         (0x20010001),
+        RZSB_CALLBACK_ALREADY_SET     (0x20010002),
+        RZSB_CALLBACK_REMOTE_FAIL     (0x20010003),
+        RZSB_CONTROL_BASE_ERROR       (0x20020000),
+        RZSB_CONTROL_NOT_LOCKED       (0x20020001),
+        RZSB_CONTROL_LOCKED           (0x20020002),
+        RZSB_CONTROL_ALREADY_LOCKED   (0x20020003),
+        RZSB_CONTROL_PREEMPTED        (0x20020004),
+        RZSB_DK_BASE_ERROR            (0x20040000),
+        RZSB_DK_INVALID_KEY           (0x20040001),
+        RZSB_DK_INVALID_KEY_STATE     (0x20040002),
+        RZSB_TOUCHPAD_BASE_ERROR      (0x20080000),
+        RZSB_TOUCHPAD_INVALID_GESTURE (0x20080001),
+        RZSB_INTERNAL_BASE_ERROR      (0x20100000),
+        RZSB_ALREADY_STARTED          (0x20100001),
+        RZSB_NOT_STARTED              (0x20100002),
+        RZSB_CONNECTION_ERROR         (0x20100003),
+        RZSB_INTERNAL_ERROR           (0x20100004);
+
+        private final int val;
+
+        private Hresult(int val) {
+            this.val = val;
+        }
+
+        public Hresult getFromApiValue(int value) {
+            for (Hresult err : Hresult.values()) {
+                if (err.getVal() == value)
+                    return err;
+            }
+
+            return UNKNOWN;
+        }
+
+        public int getVal() {
+            return val;
+        }
     }
 
     /**
