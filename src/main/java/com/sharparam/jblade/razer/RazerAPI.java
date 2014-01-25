@@ -33,6 +33,7 @@ import com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
+import com.sun.jna.platform.win32.W32Errors;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
 
@@ -679,45 +680,193 @@ public interface RazerAPI extends Library {
     }
 
     enum Hresult {
-        UNKNOWN                       (-1),
-        RZSB_OK                       (0x00000000),
-        RZSB_UNSUCCESSFUL             (0x80004005),
-        RZSB_INVALID_PARAMETER        (0x80070057),
-        RZSB_INVALID_POINTER          (0x80004003),
-        RZSB_ABORTED                  (0x80004004),
-        RZSB_NO_INTERFACE             (0x80004002),
-        RZSB_NOT_IMPLEMENTED          (0x80004001),
-        RZSB_FILE_NOT_FOUND           (0x00000002),
-        RZSB_GENERIC_BASE             (0x20000000),
-        RZSB_FILE_ZERO_SIZE           (0x20000001),
-        RZSB_FILE_INVALID_NAME        (0x20000002),
-        RZSB_FILE_INVALID_TYPE        (0x20000003),
-        RZSB_FILE_READ_ERROR          (0x20000004),
-        RZSB_FILE_INVALID_FORMAT      (0x20000005),
-        RZSB_FILE_INVALID_LENGTH      (0x20000006),
-        RZSB_FILE_NAMEPATH_TOO_LONG   (0x20000007),
-        RZSB_IMAGE_INVALID_SIZE       (0x20000008),
-        RZSB_IMAGE_INVALID_DATA       (0x20000009),
-        RZSB_WIN_VERSION_INVALID      (0x2000000A),
-        RZSB_CALLBACK_BASE            (0x20010000),
-        RZSB_CALLBACK_NOT_SET         (0x20010001),
-        RZSB_CALLBACK_ALREADY_SET     (0x20010002),
-        RZSB_CALLBACK_REMOTE_FAIL     (0x20010003),
-        RZSB_CONTROL_BASE_ERROR       (0x20020000),
-        RZSB_CONTROL_NOT_LOCKED       (0x20020001),
-        RZSB_CONTROL_LOCKED           (0x20020002),
-        RZSB_CONTROL_ALREADY_LOCKED   (0x20020003),
-        RZSB_CONTROL_PREEMPTED        (0x20020004),
-        RZSB_DK_BASE_ERROR            (0x20040000),
-        RZSB_DK_INVALID_KEY           (0x20040001),
-        RZSB_DK_INVALID_KEY_STATE     (0x20040002),
-        RZSB_TOUCHPAD_BASE_ERROR      (0x20080000),
+        /**
+         * Unknown error.
+         */
+        UNKNOWN (-1),
+
+        /**
+         * Generic success return value. Defined as S_OK.
+         */
+        RZSB_OK (0x00000000),
+
+        /**
+         * The application failed to establish a connection with the SwitchBlade device.
+         * Call GetLastError() for additional error information. Defined as E_FAIL.
+         */
+        RZSB_UNSUCCESSFUL (0x80004005),
+
+        /**
+         * One or more of the parameters is invalid.
+         * Call GetLastError() for additional error information. Defined as E_INVALIDARG.
+         */
+        RZSB_INVALID_PARAMETER (0x80070057),
+
+        /**
+         * One or more of the pointers point to data that is either not fully readable or writable.
+         * Defined as E_POINTER.
+         */
+        RZSB_INVALID_POINTER (0x80004003),
+
+        RZSB_ABORTED (0x80004004),
+        RZSB_NO_INTERFACE (0x80004002),
+        RZSB_NOT_IMPLEMENTED (0x80004001),
+
+        /**
+         * The referenced file could not be found. Defined as ERROR_FILE_NOT_FOUND.
+         */
+        RZSB_FILE_NOT_FOUND (0x00000002),
+
+        RZSB_GENERIC_BASE (0x20000000),
+
+        /**
+         * Zero-length files are not allowed.
+         */
+        RZSB_FILE_ZERO_SIZE (0x20000001),
+
+        /**
+         * The filepath points to a file that does not exist.
+         */
+        RZSB_FILE_INVALID_NAME (0x20000002),
+
+        /**
+         * Zero-sized images are not allowed.
+         */
+        RZSB_FILE_INVALID_TYPE (0x20000003),
+
+        /**
+         * The number of bytes read was different from the number of bytes expected.
+         */
+        RZSB_FILE_READ_ERROR (0x20000004),
+
+        /**
+         * The image file is not a supported file format.
+         */
+        RZSB_FILE_INVALID_FORMAT (0x20000005),
+
+        /**
+         * The file length does not match the expected length.
+         */
+        RZSB_FILE_INVALID_LENGTH (0x20000006),
+
+        /**
+         * The length of the filepath is greater than 260 characters ({@link #MAX_STRING_LENGTH}.
+         */
+        RZSB_FILE_NAMEPATH_TOO_LONG (0x20000007),
+
+        /**
+         * The dimensions of the image do not match the requirements for the display.
+         */
+        RZSB_IMAGE_INVALID_SIZE (0x20000008),
+
+        /**
+         * The image could not be verified as valid.
+         * Call GetLastError() for additional error information.
+         */
+        RZSB_IMAGE_INVALID_DATA (0x20000009),
+
+        /**
+         * Must be Win7 or greater workstation.
+         */
+        RZSB_WIN_VERSION_INVALID (0x2000000A),
+
+        /**
+         * Generic callback errors, but specific to the SDK.
+         */
+        RZSB_CALLBACK_BASE (0x20010000),
+
+        /**
+         * The application tried to call or clear a callback that was never set.
+         */
+        RZSB_CALLBACK_NOT_SET (0x20010001),
+
+        /**
+         * Tried to set a previously set callback without clearing it first.
+         */
+        RZSB_CALLBACK_ALREADY_SET (0x20010002),
+
+        /**
+         * Setting the callback failed on the server.
+         */
+        RZSB_CALLBACK_REMOTE_FAIL (0x20010003),
+
+        /**
+         * Control.
+         */
+        RZSB_CONTROL_BASE_ERROR (0x20020000),
+
+        /**
+         * Unlock when we didn't lock? -- careless
+         */
+        RZSB_CONTROL_NOT_LOCKED (0x20020001),
+
+        /**
+         * Someone else has the lock.
+         */
+        RZSB_CONTROL_LOCKED (0x20020002),
+
+        /**
+         * We already locked it? -- careless
+         */
+        RZSB_CONTROL_ALREADY_LOCKED (0x20020003),
+
+        /**
+         * Preemption took place!
+         */
+        RZSB_CONTROL_PREEMPTED (0x20020004),
+
+        /**
+         * Dynamic keys.
+         */
+        RZSB_DK_BASE_ERROR (0x20040000),
+
+        /**
+         * The dynamic key referenced is not a valid dynamic key value.
+         * Refer to SwitchBladeSDK_types.h for valid values.
+         */
+        RZSB_DK_INVALID_KEY (0x20040001),
+
+        /**
+         * The dynamic key state referenced is not a valid dynamic key state.
+         * Refer to SwitchBladeSDK_types.h for valid states.
+         */
+        RZSB_DK_INVALID_KEY_STATE (0x20040002),
+
+        /**
+         * Touchpad (buttons and gestures).
+         */
+        RZSB_TOUCHPAD_BASE_ERROR (0x20080000),
+
+        /**
+         * Invalid gesture detected by the SwitchBlade touchpad.
+         */
         RZSB_TOUCHPAD_INVALID_GESTURE (0x20080001),
-        RZSB_INTERNAL_BASE_ERROR      (0x20100000),
-        RZSB_ALREADY_STARTED          (0x20100001),
-        RZSB_NOT_STARTED              (0x20100002),
-        RZSB_CONNECTION_ERROR         (0x20100003),
-        RZSB_INTERNAL_ERROR           (0x20100004);
+
+        /**
+         * Interface-specific errors.
+         */
+        RZSB_INTERNAL_BASE_ERROR (0x20100000),
+
+        /**
+         * Callback structures already initialized.
+         */
+        RZSB_ALREADY_STARTED (0x20100001),
+
+        /**
+         * The internal callstack is in disorder.
+         * This is sometimes due to not having previously called {@link #RzSBStart()}.
+         */
+        RZSB_NOT_STARTED (0x20100002),
+
+        /**
+         * Connection to application services failed.
+         */
+        RZSB_CONNECTION_ERROR (0x20100003),
+
+        /**
+         * Unknown error -- catch-all for now.
+         */
+        RZSB_INTERNAL_ERROR (0x20100004);
 
         private final int val;
 
@@ -725,7 +874,52 @@ public interface RazerAPI extends Library {
             this.val = val;
         }
 
-        public Hresult getFromApiValue(int value) {
+        // TODO: Fix poor wording on following docs
+
+        // Useless?
+        /**
+         * Checks if a given {@link com.sharparam.jblade.razer.RazerAPI.Hresult} value means success.
+         * @param value Value to check.
+         * @return True if successful, false otherwise.
+         */
+        public static boolean success(Hresult value) {
+            return value == RZSB_OK;
+        }
+
+        /**
+         * Checks if a given integer value represents a successful Hresult.
+         * @param value Value to check.
+         * @return True if successful, false otherwise.
+         */
+        public static boolean success(int value) {
+            return value == RZSB_OK.getVal();
+        }
+
+        // Useless?
+        /**
+         * Checks if a given {@link com.sharparam.jblade.razer.RazerAPI.Hresult} value is erroneous.
+         * @param value Value to check.
+         * @return True if erroneous, false otherwise.
+         */
+        public static boolean failed(Hresult value) {
+            return value != RZSB_OK;
+        }
+
+        /**
+         * Checks if a given integer value represents an erroneous Hresult value.
+         * @param value Value to check.
+         * @return True if erroneous, false otherwise.
+         */
+        public static boolean failed(int value) {
+            return value != RZSB_OK.getVal();
+        }
+
+        /**
+         * Converts the given integer value to an Hresult value.
+         * @param value Value to convert.
+         * @return The Hresult value of the integer.
+         */
+        public static Hresult getFromApiValue(int value) {
             for (Hresult err : Hresult.values()) {
                 if (err.getVal() == value)
                     return err;
@@ -734,6 +928,10 @@ public interface RazerAPI extends Library {
             return UNKNOWN;
         }
 
+        /**
+         * Gets the error code of this Hresult value.
+         * @return The error code.
+         */
         public int getVal() {
             return val;
         }
