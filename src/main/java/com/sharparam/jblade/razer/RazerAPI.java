@@ -497,13 +497,13 @@ public class RazerAPI {
 
         /**
          * Converts integer value returned from API functions to an
-         * {@link RazerLibrary.AppEventMode} value.
+         * {@link RazerAPI.AppEventMode} value.
          * @param val Integer value returned from API functions.
          * @return AppEventMode value.
-         * @throws com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException If the passed in integer value is invalid,
+         * @throws RazerInvalidAppEventModeException If the passed in integer value is invalid,
          *                                           a RazerInvalidTargetDisplayException is thrown.
          */
-        public AppEventMode getAppEventModeFromApiValue(int val) throws RazerInvalidAppEventModeException {
+        public static AppEventMode getAppEventModeFromApiValue(int val) throws RazerInvalidAppEventModeException {
             for (AppEventMode mode : AppEventMode.values()) {
                 if (mode.getVal() == val)
                     return mode;
@@ -513,8 +513,8 @@ public class RazerAPI {
         }
 
         /**
-         * Gets a RazerLibrary compatible representation of this
-         * {@link RazerLibrary.AppEventMode} value.
+         * Gets a RazerAPI compatible representation of this
+         * {@link RazerAPI.AppEventMode} value.
          * @return A value usable with RazerLibrary.
          */
         public int getVal() {
@@ -589,8 +589,8 @@ public class RazerAPI {
         }
 
         /**
-         * Converts an integer value returned from RazerLibrary to an EnumSet containing all relevant
-         * {@link RazerLibrary.GestureType} flags.
+         * Converts an integer value returned from RazerAPI to an EnumSet containing all relevant
+         * {@link RazerAPI.GestureType} flags.
          * @param value The API integer value to convert.
          * @return An EnumSet with the GestureType values contained in the integer.
          */
@@ -876,7 +876,7 @@ public class RazerAPI {
 
         // Useless?
         /**
-         * Checks if a given {@link RazerLibrary.Hresult} value means success.
+         * Checks if a given {@link RazerAPI.Hresult} value means success.
          * @param value Value to check.
          * @return True if successful, false otherwise.
          */
