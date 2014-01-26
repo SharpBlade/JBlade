@@ -28,9 +28,14 @@
 
 package com.sharparam.jblade.razer;
 
+import com.sharparam.jblade.razer.events.DynamicKeyEvent;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
+import com.sharparam.jblade.razer.listeners.DynamicKeyListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on 2014-01-24.
@@ -38,6 +43,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class DynamicKey {
     private final Logger log;
+
+    private final List<DynamicKeyListener> listeners;
 
     private RazerAPI.DynamicKeyState state;
     private RazerAPI.DynamicKeyState previousState;
@@ -72,6 +79,9 @@ public class DynamicKey {
         log.debug("Setting images");
         setUpImage(upImage);
         setDownImage(downImage);
+
+        log.debug("Initializing listener array");
+        listeners = new ArrayList<DynamicKeyListener>();
     }
 
     public String getUpImage() {
@@ -136,14 +146,52 @@ public class DynamicKey {
         setImages(upImage, downImage);
     }
 
+    public void addListener(DynamicKeyListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(DynamicKeyListener listener) {
+        if (listeners.contains(listener))
+            listeners.remove(listener);
+    }
+
+    private void onStateChanged() {
+        if (listeners.isEmpty())
+            return;
+
+        DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
+        for (DynamicKeyListener listener : listeners)
+            listener.dynamicKeyStateChanged(event);
+    }
+
+    private void onPressed() {
+        if (listeners.isEmpty())
+            return;
+
+        DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
+        for (DynamicKeyListener listener : listeners)
+            listener.dynamicKeyPressed(event);
+    }
+
+    private void onReleased() {
+        if (listeners.isEmpty())
+            return;
+
+        DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
+        for (DynamicKeyListener listener : listeners)
+            listener.dynamicKeyReleased(event);
+    }
+
     public void updateState(RazerAPI.DynamicKeyState state) {
         previousState = this.state;
         this.state = state;
+        onStateChanged();
         if (this.state == RazerAPI.DynamicKeyState.UP &&
                 (previousState == RazerAPI.DynamicKeyState.DOWN || previousState == RazerAPI.DynamicKeyState.NONE)) {
-            // TODO: Implement OnPressed
+            onReleased();
+        } else if (this.state == RazerAPI.DynamicKeyState.DOWN &&
+                (previousState == RazerAPI.DynamicKeyState.UP || previousState == RazerAPI.DynamicKeyState.NONE)) {
+            onPressed();
         }
     }
-
-    // TODO: Implement UpdateState and OnPressed
 }
