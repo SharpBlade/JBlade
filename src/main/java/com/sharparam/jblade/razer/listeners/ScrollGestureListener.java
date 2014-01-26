@@ -28,13 +28,13 @@
 
 package com.sharparam.jblade.razer.listeners;
 
-import com.sharparam.jblade.razer.events.PressGestureEvent;
+import com.sharparam.jblade.razer.events.GestureEvent;
 
 /**
  * Created on 2014-01-26.
  *
  * @author Sharparam
  */
-public interface PressGestureListener {
-    void pressGesturePerformed(PressGestureEvent event);
+public interface ScrollGestureListener {
+    void scrollGesturePerformed(GestureEvent event);
 }

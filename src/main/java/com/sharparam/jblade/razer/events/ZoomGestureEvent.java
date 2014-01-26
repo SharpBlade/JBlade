@@ -26,15 +26,23 @@
  * "Razer" is a trademark of Razer USA Ltd.
  */
 
-package com.sharparam.jblade.razer.listeners;
+package com.sharparam.jblade.razer.events;
 
-import com.sharparam.jblade.razer.events.PressGestureEvent;
+import com.sharparam.jblade.razer.ZoomDirection;
 
 /**
  * Created on 2014-01-26.
  *
  * @author Sharparam
  */
-public interface PressGestureListener {
-    void pressGesturePerformed(PressGestureEvent event);
+public class ZoomGestureEvent {
+    private final ZoomDirection direction;
+
+    public ZoomGestureEvent(ZoomDirection direction) {
+        this.direction = direction;
+    }
+
+    public ZoomDirection getDirection() {
+        return direction;
+    }
 }
