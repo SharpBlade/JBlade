@@ -28,10 +28,13 @@
 
 package com.sharparam.jblade.razer.listeners;
 
+import com.sharparam.jblade.razer.events.ZoomGestureEvent;
+
 /**
  * Created on 2014-01-26.
  *
  * @author Sharparam
  */
 public interface ZoomGestureListener {
+    void zoomGesturePerformed(ZoomGestureEvent event);
 }

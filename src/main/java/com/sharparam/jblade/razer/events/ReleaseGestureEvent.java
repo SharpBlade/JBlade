@@ -26,15 +26,33 @@
  * "Razer" is a trademark of Razer USA Ltd.
  */
 
-package com.sharparam.jblade.razer.listeners;
-
-import com.sharparam.jblade.razer.events.PressGestureEvent;
+package com.sharparam.jblade.razer.events;
 
 /**
  * Created on 2014-01-26.
  *
  * @author Sharparam
  */
-public interface PressGestureListener {
-    void pressGesturePerformed(PressGestureEvent event);
+public class ReleaseGestureEvent {
+    private final int touchpointCount;
+    private final short x;
+    private final short y;
+
+    public ReleaseGestureEvent(int touchpointCount, short x, short y) {
+        this.touchpointCount = touchpointCount;
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getTouchpointCount() {
+        return touchpointCount;
+    }
+
+    public short getX() {
+        return x;
+    }
+
+    public short getY() {
+        return y;
+    }
 }
