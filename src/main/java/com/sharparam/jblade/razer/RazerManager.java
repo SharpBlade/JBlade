@@ -458,7 +458,7 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
 
     // Keyboard event handler
     @Override
-    public int invoke(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
+    public int callback(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
         char asChar = (char) data.intValue();

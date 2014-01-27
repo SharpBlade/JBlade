@@ -198,7 +198,7 @@ public class RazerAPI {
          * @param lParam Indicates key modifiers (CTRL, ALT, SHIFT).
          * @return HRESULT code indicating success or failure.
          */
-        int invoke(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
+        int callback(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
     }
 
     /**
