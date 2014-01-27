@@ -29,6 +29,7 @@
 package com.sharparam.jblade.razer;
 
 import com.sun.jna.Library;
+import com.sun.jna.WString;
 
 /**
  * Interface for native RazerLibrary functions provided by the Razer SwitchBlade UI SDK.
@@ -118,7 +119,7 @@ public interface RazerLibrary extends Library {
      *                 This image should be 800 x 480 pixels in dimension. Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBSetImageTouchpad(String filename);
+    int RzSBSetImageTouchpad(WString filename);
 
     /**
      * Sets the callback function for application event callbacks.

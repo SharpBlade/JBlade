@@ -45,8 +45,12 @@ import java.util.List;
  * @author Sharparam
  */
 public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
+    private static Touchpad instance;
+
     private final Logger log;
     private final RazerAPI razerAPI;
+
+    private static RazerAPI.TouchpadGestureCallbackFunction gestureCallback;
 
     private final List<GestureListener> gestureListeners;
     private final List<FlickGestureListener> flickGestureListeners;
@@ -67,7 +71,7 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
 
     private String currentImage;
 
-    public Touchpad() throws RazerNativeException {
+    private Touchpad() throws RazerNativeException {
         log = LogManager.getLogger();
 
         log.debug("Initializing active gesture vars");
@@ -77,7 +81,8 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         log.debug("Getting Razer API instance");
         razerAPI = RazerAPI.INSTANCE;
         log.debug("Setting gesture callback");
-        RazerAPI.Hresult result = razerAPI.RzSBGestureSetCallback(this);
+        gestureCallback = this;
+        RazerAPI.Hresult result = razerAPI.RzSBGestureSetCallback(gestureCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
 
@@ -101,6 +106,13 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         tapGestureListeners = new ArrayList<TapGestureListener>();
         log.debug("Initializing zoom gesture listener list");
         zoomGestureListeners = new ArrayList<ZoomGestureListener>();
+    }
+
+    static Touchpad getInstance() throws RazerNativeException {
+        if (instance == null)
+            instance = new Touchpad();
+
+        return instance;
     }
 
     public enum RenderMethod {
@@ -161,7 +173,7 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         if (result.failed())
             throw new RazerNativeException("RzSBEnableGesture", result);
 
-        result = razerAPI.RzSBGestureSetCallback(this);
+        result = razerAPI.RzSBGestureSetCallback(gestureCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
 
@@ -257,7 +269,7 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
     }
 
     public void disableOSGesture(RazerAPI.GestureType gestureType) throws RazerNativeException {
-        setGesture(gestureType, false);
+        setOSGesture(gestureType, false);
     }
 
     public void disableOSGestures(EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
@@ -459,8 +471,8 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
 
     // Touchpad gesture event handler
     @Override
-    public int invoke(RazerAPI.GestureType gestureType, WinDef.UINT dwParameters,
-                      WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
+    public int callback(int gestureType, WinDef.UINT dwParameters,
+                        WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
         int parameters = dwParameters.intValue();
@@ -468,9 +480,11 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         short y = wYPos.shortValue();
         short z = wZPos.shortValue();
 
-        onGesture(gestureType, parameters, x, y, z);
+        RazerAPI.GestureType type = RazerAPI.GestureType.values()[gestureType];
 
-        switch (gestureType) {
+        onGesture(type, parameters, x, y, z);
+
+        switch (type) {
             case PRESS: // Parameter = number of touch points
                 onPressGesture(parameters, x, y);
                 break;

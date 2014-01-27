@@ -28,7 +28,7 @@
 
 package com.sharparam.jblade.windows;
 
-import com.sun.jna.Native;
+import com.sun.jna.platform.win32.User32;
 
 /**
  * Created on 2014-01-26.
@@ -36,12 +36,7 @@ import com.sun.jna.Native;
  * @author Sharparam
  */
 public class WinAPI {
-    public static final String KERNEL32_NAME = "kernel32.dll";
-    public static final String USER32_NAME = "user32.dll";
-
     public static final WinAPI INSTANCE = new WinAPI();
-
-    private final WinUser32Library user32Lib;
 
     /**
      * Toggled key (e.g. caps lock).
@@ -58,8 +53,7 @@ public class WinAPI {
     /**
      * Native windows message types.
      */
-    public enum MessageType
-    {
+    public enum MessageType {
         /**
          * Posted to the window with the keyboard focus when a nonsystem key is pressed.
          * A nonsystem key is a key that is pressed when the ALT key is not pressed.
@@ -1422,44 +1416,30 @@ public class WinAPI {
     }
 
     private WinAPI() {
-        user32Lib = (WinUser32Library) Native.loadLibrary(USER32_NAME, WinUser32Library.class);
+
     }
 
     /**
-     * Retrieves the status of the specified virtual key.
-     * The status specifies whether the key is up, down,
-     * or toggled (on, off—alternating each time the key is pressed).
-     * The key status returned from this function changes as a thread reads key messages from its message queue.
-     * The status does not reflect the interrupt-level state associated with the hardware.
-     * Use the GetAsyncKeyState function to retrieve that information.
-     * An application calls GetKeyState in response to a keyboard-input message. This function retrieves
-     * the state of the key when the input message was generated.
-     * To retrieve state information for all the virtual keys, use the GetKeyboardState function.
-     * An application can use the virtual key code constants
-     * VK_SHIFT, VK_CONTROL, and VK_MENU as values for the nVirtKey parameter.
-     * This gives the status of the SHIFT, CTRL, or ALT keys without distinguishing between left and right.
-     * @param keyCode A virtual key. If the desired virtual key is a letter or digit
-     *                (A through Z, a through z, or 0 through 9),
-     *                nVirtKey must be set to the ASCII value of that character.
-     *                For other keys, it must be a virtual-key code.
-     *                If a non-English keyboard layout is used,
-     *                virtual keys with values in the range ASCII A through Z and 0
-     *                through 9 are used to specify most of the character keys.
-     *                For example, for the German keyboard layout,
-     *                the virtual key of value ASCII O (0x4F) refers to the "o" key,
-     *                whereas VK_OEM_1 refers to the "o with umlaut" key.
-     * @return The return value specifies the status of the specified virtual key, as follows:
-     *         <list type="bullet">
-     *           <item>If the high-order bit is 1, the key is down; otherwise, it is up.</item>
-     *           <item>
-     *             If the low-order bit is 1, the key is toggled. A key, such as the CAPS LOCK key,
-     *             is toggled if it is turned on. The key is off and untoggled if the low-order bit is 0.
-     *             A toggle key's indicator light (if any) on the keyboard will be on when the key is toggled,
-     *             and off when the key is untoggled.
-     *           </item>
-     *         </list>
+     * Determines whether a key is up or down at the time the function is called,
+     * and whether the key was pressed after a previous call to GetAsyncKeyState.
+     * @param keyCode The virtual-key code.
+     *                You can use left- and right-distinguishing constants to specify certain keys.
+     * @return If the function succeeds, the return value specifies whether the key was pressed since
+     *         the last call to GetAsyncKeyState, and whether the key is currently up or down.
+     *         If the most significant bit is set, the key is down, and if the least significant bit is set,
+     *         the key was pressed after the previous call to GetAsyncKeyState. However,
+     *         you should not rely on this last behavior.
+     *         The return value is zero for the following cases:
+     *         <ul>
+     *           <li>The current desktop is not the active desktop</li>
+     *           <li>
+     *             The foreground thread belongs to another process and the desktop
+     *             does not allow the hook or the journal record.
+     *           </li>
+     *         </ul>
      */
-    public short GetKeyState(int keyCode) {
-        return user32Lib.GetKeyState(keyCode);
+    public short GetAsyncKeyState(int keyCode) {
+        // TODO: Find out if this can replace GetKeyState, for some reason JNA doesn't have GetKeyState
+        return User32.INSTANCE.GetAsyncKeyState(keyCode);
     }
 }
