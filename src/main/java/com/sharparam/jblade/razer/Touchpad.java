@@ -480,7 +480,14 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         short y = wYPos.shortValue();
         short z = wZPos.shortValue();
 
-        RazerAPI.GestureType type = RazerAPI.GestureType.values()[gestureType];
+        // TODO: Find a more efficient way to extract the gesture type
+
+        EnumSet<RazerAPI.GestureType> types = RazerAPI.GestureType.getFromApiValue(gestureType); //RazerAPI.GestureType.values()[gestureType];
+
+        if (types.size() != 1) // We should ALWAYS get EXACTLY one gesture
+            throw new IllegalArgumentException("gestureType did not contain exactly 1 gesture!");
+
+        RazerAPI.GestureType type = (RazerAPI.GestureType) types.toArray()[0];
 
         onGesture(type, parameters, x, y, z);
 
