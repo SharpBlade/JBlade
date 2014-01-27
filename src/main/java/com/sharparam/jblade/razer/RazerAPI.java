@@ -32,8 +32,11 @@ import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
+import com.sun.jna.WString;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.StdCallLibrary;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -57,6 +60,8 @@ public class RazerAPI {
     public static final RazerAPI INSTANCE = new RazerAPI();
 
     private final RazerLibrary lib;
+
+    private final Logger log;
 
     /*
      * Definitions for the Dynamic Key display region of the Switchblade.
@@ -139,20 +144,20 @@ public class RazerAPI {
     public static final int PIXEL_FORMAT_RGB565 = 1;
 
     /**
-     * Interface implementing invoke function for the dynamic key callback.
+     * Interface implementing callback function for the dynamic key callback.
      */
     interface DynamicKeyCallbackFunction extends StdCallLibrary.StdCallCallback {
         /**
          * Method handling the dynamic key callback.
-         * @param dynamicKeyType The key type that was changed.
-         * @param dynamicKeyState The new state of the key.
+         * @param rawDynamicKeyType The key type that was changed.
+         * @param rawDynamicKeyState The new state of the key.
          * @return HRESULT code indicating success or failure.
          */
-        int invoke(DynamicKeyType dynamicKeyType, DynamicKeyState dynamicKeyState);
+        int callback(int rawDynamicKeyType, int rawDynamicKeyState);
     }
 
     /**
-     * Interface implementing invoke function for the app event callback.
+     * Interface implementing callback function for the app event callback.
      */
     interface AppEventCallbackFunction extends StdCallLibrary.StdCallCallback {
         /**
@@ -162,11 +167,11 @@ public class RazerAPI {
          * @param dwProcessID THe process ID.
          * @return HRESULT code indicating success or failure.
          */
-        int invoke(AppEventType appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID);
+        int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID);
     }
 
     /**
-     * Interface implementing invoke function for the touchpad gesture callback.
+     * Interface implementing callback function for the touchpad gesture callback.
      */
     interface TouchpadGestureCallbackFunction extends StdCallLibrary.StdCallCallback {
         /**
@@ -178,12 +183,12 @@ public class RazerAPI {
          * @param wZPos Z position where gesture happened.
          * @return HRESULT code indicating success or failure.
          */
-        int invoke(GestureType gestureType, WinDef.UINT dwParameters,
-                   WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos);
+        int callback(int gestureType, WinDef.UINT dwParameters,
+                     WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos);
     }
 
     /**
-     * Interface implementing invoke function for the keyboard callback.
+     * Interface implementing callback function for the keyboard callback.
      */
     interface KeyboardCallbackFunction extends StdCallLibrary.StdCallCallback {
         /**
@@ -952,7 +957,11 @@ public class RazerAPI {
     }
 
     private RazerAPI() {
+        log = LogManager.getLogger();
+        log.info("RazerAPI is initializing");
+        log.debug("Loading RazerLibrary: {}", DLL_NAME);
         this.lib = (RazerLibrary) Native.loadLibrary(DLL_NAME, RazerLibrary.class);
+        log.debug("RazerLibrary loaded!");
     }
 
     /**
@@ -1048,7 +1057,8 @@ public class RazerAPI {
      * @return HRESULT code indicating success or failure.
      */
     public Hresult RzSBSetImageTouchpad(String filename) {
-        return Hresult.getFromApiValue(lib.RzSBSetImageTouchpad(filename));
+        WString str = new WString(filename);
+        return Hresult.getFromApiValue(lib.RzSBSetImageTouchpad(str));
     }
 
     /**
@@ -1126,7 +1136,9 @@ public class RazerAPI {
      * @return HRESULT object indicating success or failure.
      */
     public Hresult RzSBEnableGesture(EnumSet<GestureType> gestureType, boolean enable) {
-        return Hresult.getFromApiValue(lib.RzSBEnableGesture(GestureType.convertToInteger(gestureType), enable));
+        int intVal = GestureType.convertToInteger(gestureType);
+        log.debug(String.format("Calling RzSBEnableGesture %s with gesture 0x%X", enable, intVal));
+        return Hresult.getFromApiValue(lib.RzSBEnableGesture(intVal, enable));
     }
 
     /**
@@ -1154,7 +1166,9 @@ public class RazerAPI {
      * @return HRESULT object indicating success or failure.
      */
     public Hresult RzSBEnableOSGesture(EnumSet<GestureType> gestureType, boolean enable) {
-        return Hresult.getFromApiValue(lib.RzSBEnableOSGesture(GestureType.convertToInteger(gestureType), enable));
+        int intVal = GestureType.convertToInteger(gestureType);
+        log.debug(String.format("Calling RzSBEnableOSGesture %s with gesture 0x%X", enable, intVal));
+        return Hresult.getFromApiValue(lib.RzSBEnableOSGesture(intVal, enable));
     }
 
     /**
