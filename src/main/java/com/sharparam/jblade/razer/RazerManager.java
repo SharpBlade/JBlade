@@ -30,6 +30,7 @@ package com.sharparam.jblade.razer;
 
 import com.sharparam.jblade.ModifierKeys;
 import com.sharparam.jblade.razer.events.*;
+import com.sharparam.jblade.razer.exceptions.RazerDynamicKeyException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
 import com.sharparam.jblade.razer.exceptions.RazerUnstableShutdownException;
@@ -39,8 +40,6 @@ import com.sun.jna.platform.win32.WinDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -49,23 +48,16 @@ import java.util.List;
  * Created on 2014-01-24.
  * @author Sharparam
  */
-public class RazerManager implements RazerAPI.AppEventCallbackFunction,
-        RazerAPI.DynamicKeyCallbackFunction, RazerAPI.KeyboardCallbackFunction {
-    /**
-     * The file name to use when creating the control file.
-     */
-    public static final String RAZER_CONTROL_FILE = "DO_NOT_TOUCH__RAZER_CONTROL_FILE";
-
-    private static final Logger STATIC_LOG = LogManager.getLogger();
+public class RazerManager {
     private final Logger log;
 
     private static RazerManager instance;
 
     private final RazerAPI razerAPI;
 
-    private static RazerAPI.AppEventCallbackFunction appEventCallback;
-    private static RazerAPI.DynamicKeyCallbackFunction dkCallback;
-    private static RazerAPI.KeyboardCallbackFunction keyboardCallback;
+    private static RazerAPI.AppEventCallbackInterface appEventCallback;
+    private static RazerAPI.DynamicKeyCallbackInterface dkCallback;
+    private static RazerAPI.KeyboardCallbackInterface keyboardCallback;
 
     private final List<AppEventListener> appEventListeners;
     private final List<DynamicKeyListener> dynamicKeyListeners;
@@ -80,48 +72,13 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     private boolean keyboardCapture;
 
     /**
-     * Initializes a new instance of the RazerManager class with default settings.
-     * Equivalent to calling RazerManager(true, false);
-     * @throws RazerUnstableShutdownException Thrown if the application was not shut down properly on last run.
+     * Initializes a new instance of the RazerManager class.
      * @throws RazerNativeException Thrown if any native call fails during initialization.
      */
     private RazerManager() throws RazerUnstableShutdownException, RazerNativeException {
-        this(true);
-    }
-
-    /**
-     * Initializes a new instance of the RazerManager class with default setting for useControlFile.
-     * Equivalent to calling RazerManager(..., false);
-     * @param disableOSGestures If true, all OS gestures will by default be disabled on the touchpad,
-     *                          making it do nothing until gestures are enabled manually.
-     * @throws RazerUnstableShutdownException Thrown if the application was not shut down properly on last run.
-     * @throws RazerNativeException Thrown if any native call fails during initialization.
-     */
-    private RazerManager(boolean disableOSGestures) throws RazerUnstableShutdownException, RazerNativeException {
-        this(disableOSGestures, false);
-    }
-
-    /**
-     * Initializes a new instance of the RazerManager class.
-     * @param disableOSGestures If true, all OS gestures will by default be disabled on the touchpad,
-     *                          making it do nothing until gestures are enabled manually.
-     * @param useControlFile If true, creates a control file that is checked on subsequent creations of RazerManager,
-     *                       initialization will fail if a control file is found and useControlFile is true.
-     * @throws RazerUnstableShutdownException Thrown if the application was not shut down properly on last run.
-     * @throws RazerNativeException Thrown if any native call fails during initialization.
-     */
-    private RazerManager(boolean disableOSGestures, boolean useControlFile) throws RazerUnstableShutdownException, RazerNativeException {
         log = LogManager.getLogger();
 
         log.info("RazerManager is initializing");
-
-        if (useControlFile && isControlFilePresent()) {
-            log.error("Detected control file presence, throwing exception.");
-            throw new RazerUnstableShutdownException();
-        }
-
-        if (useControlFile)
-            createControlFile();
 
         log.debug("Getting RazerLibrary instance");
 
@@ -139,7 +96,12 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
 
         log.debug("Registering app event callback");
 
-        appEventCallback = this;
+        appEventCallback = new RazerAPI.AppEventCallbackInterface() {
+            @Override
+            public int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
+                return appEventCallbackFunction(appEventType, dwAppMode, dwProcessID);
+            }
+        };
 
         result = razerAPI.RzSBAppEventSetCallback(appEventCallback);
         if (result.failed())
@@ -149,21 +111,31 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
 
         touchpad = Touchpad.getInstance();
 
-        if (disableOSGestures) {
-            log.debug("disableOSGestures == true; Calling touchpad.disableOSGesture(ALL)");
-            touchpad.disableOSGesture(RazerAPI.GestureType.ALL);
-        }
+        log.debug("Calling touchpad.disableOSGesture(ALL)");
+        touchpad.disableOSGesture(RazerAPI.GestureType.ALL);
 
         log.debug("Registering dynamic key callback");
 
-        dkCallback = this;
+        dkCallback = new RazerAPI.DynamicKeyCallbackInterface() {
+            @Override
+            public int callback(int dynamicKeyType, int dynamicKeyState) {
+                return dynamicKeyCallbackFunction(dynamicKeyType, dynamicKeyState);
+            }
+        };
 
         result = razerAPI.RzSBDynamicKeySetCallback(dkCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBDynamicKeySetCallback", result);
 
         log.debug("Registering keyboard callback");
-        keyboardCallback = this;
+
+        keyboardCallback = new RazerAPI.KeyboardCallbackInterface() {
+            @Override
+            public int callback(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam) {
+                return keyboardCallbackFunction(uMsg, wParam, lParam);
+            }
+        };
+
         result = razerAPI.RzSBKeyboardCaptureSetCallback(keyboardCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBKeyboardCaptureSetCallback", result);
@@ -210,53 +182,9 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
         return keyboardCapture;
     }
 
-    /**
-     * Checks if the Razer control file exists.
-     * @return True if the control file exists, false otherwise.
-     */
-    public static boolean isControlFilePresent() {
-        return new File(RAZER_CONTROL_FILE).exists();
-    }
-
-    /**
-     * Creates the Razer control file.
-     */
-    public static void createControlFile() {
-        try {
-            File controlFile = new File(RAZER_CONTROL_FILE);
-            boolean result = controlFile.createNewFile();
-            if (result) {
-                STATIC_LOG.info("createControlFile: Success!");
-            } else {
-                STATIC_LOG.warn("createControlFile: File already exists");
-            }
-        } catch (IOException ex) {
-            STATIC_LOG.error("createControlFile: Failed to create control file due to IOException.", ex);
-        }
-    }
-
-    /**
-     * Deletes the Razer control file.
-     */
-    public static void deleteControlFile() {
-        File controlFile = new File(RAZER_CONTROL_FILE);
-        boolean result = controlFile.delete();
-        if (result) {
-            STATIC_LOG.info("deleteControlFile: Success!");
-        } else {
-            STATIC_LOG.warn("deleteControlFile: Failed to delete control files, does it exist?");
-        }
-    }
-
     public void stop() {
-        stop(true);
-    }
-
-    public void stop(boolean cleanup) {
         log.info("RazerManager is stopping! Calling RzSBStop...");
         razerAPI.RzSBStop();
-        if (cleanup)
-            deleteControlFile();
         log.info("RazerManager has stopped.");
     }
 
@@ -264,7 +192,37 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
         return dynamicKeys[keyType.ordinal() - 1];
     }
 
-    // TODO: Implement EnableDynamicKey and DisableDynamicKey
+    public DynamicKey enableDynamicKey(RazerAPI.DynamicKeyType type, DynamicKeyListener listener,
+                                       String image, String pressedImage, boolean replace) throws RazerDynamicKeyException {
+        int index = type.ordinal() - 1;
+
+        if (dynamicKeys[index] != null && !replace) {
+            log.info("Dynamic key {} already enabled and replace is false", type);
+            return dynamicKeys[index];
+        }
+
+        log.debug("Resetting dynamic key {}", type);
+        disableDynamicKey(type);
+
+        try {
+            log.debug("Creating new DynamicKey object");
+            DynamicKey dk = new DynamicKey(type, image, pressedImage, listener);
+            dynamicKeys[index] = dk;
+        } catch (RazerNativeException ex) {
+            log.error("Failed to enable dynamic key {}: {}", type, ex.getHresult().name());
+            throw new RazerDynamicKeyException(String.format("Failed to enable dynamic key %s due to a native call exception.", type), ex);
+        }
+
+        return dynamicKeys[index];
+    }
+
+    public void disableDynamicKey(RazerAPI.DynamicKeyType type) {
+        int index = type.ordinal() - 1;
+        DynamicKey dk = dynamicKeys[index];
+        if (dk != null)
+            dk.disable();
+        dynamicKeys[index] = null;
+    }
 
     public void setKeyboardCapture(boolean enabled) throws RazerNativeException {
         if (enabled == keyboardCapture)
@@ -395,8 +353,7 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     }
 
     // App event handler
-    @Override
-    public int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
+    private int appEventCallbackFunction(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
         RazerAPI.AppEventType eventType = RazerAPI.AppEventType.values()[appEventType];
@@ -423,17 +380,16 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     }
 
     // Dynamic key event handler
-    @Override
-    public int callback(int rawDynamicKeyType, int rawDynamicKeyState) {
+    private int dynamicKeyCallbackFunction(int dynamicKeyType, int dynamicKeyState) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
-        RazerAPI.DynamicKeyType dkType = RazerAPI.DynamicKeyType.values()[rawDynamicKeyType];
-        RazerAPI.DynamicKeyState state = RazerAPI.DynamicKeyState.values()[rawDynamicKeyState];
+        RazerAPI.DynamicKeyType dkType = RazerAPI.DynamicKeyType.values()[dynamicKeyType];
+        RazerAPI.DynamicKeyState state = RazerAPI.DynamicKeyState.values()[dynamicKeyState];
 
         int index = dkType.ordinal() - 1;
         DynamicKey dk = dynamicKeys[index];
         if (dk == null) {
-            log.debug("Key has not been registered by app");
+            log.debug("Key {} has not been registered by app", dkType);
             return result.getVal();
         }
 
@@ -457,8 +413,7 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     }
 
     // Keyboard event handler
-    @Override
-    public int invoke(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
+    private int keyboardCallbackFunction(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
         char asChar = (char) data.intValue();

@@ -36,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -44,13 +45,13 @@ import java.util.List;
  * Created on 2014-01-24.
  * @author Sharparam
  */
-public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
+public class Touchpad {
     private static Touchpad instance;
 
     private final Logger log;
     private final RazerAPI razerAPI;
 
-    private static RazerAPI.TouchpadGestureCallbackFunction gestureCallback;
+    private static RazerAPI.TouchpadGestureCallbackInterface gestureCallback;
 
     private final List<GestureListener> gestureListeners;
     private final List<FlickGestureListener> flickGestureListeners;
@@ -81,7 +82,14 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         log.debug("Getting Razer API instance");
         razerAPI = RazerAPI.INSTANCE;
         log.debug("Setting gesture callback");
-        gestureCallback = this;
+
+        gestureCallback = new RazerAPI.TouchpadGestureCallbackInterface() {
+            @Override
+            public int callback(int gestureType, WinDef.UINT dwParameters, WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
+                return gestureCallbackFunction(gestureType, dwParameters, wXPos, wYPos, wZPos);
+            }
+        };
+
         RazerAPI.Hresult result = razerAPI.RzSBGestureSetCallback(gestureCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
@@ -276,8 +284,8 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         setOSGesture(gestureTypes, false);
     }
 
-    // TODO: Implement DrawBitmap
-    public void DrawBitmap(/* TODO: Add bitmap parameter */) {
+    public void drawImage(BufferedImage image) {
+        // TODO: Implement
         throw new NotImplementedException();
     }
 
@@ -470,8 +478,7 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
     }
 
     // Touchpad gesture event handler
-    @Override
-    public int callback(int gestureType, WinDef.UINT dwParameters,
+    private int gestureCallbackFunction(int gestureType, WinDef.UINT dwParameters,
                         WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
@@ -480,7 +487,14 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         short y = wYPos.shortValue();
         short z = wZPos.shortValue();
 
-        RazerAPI.GestureType type = RazerAPI.GestureType.values()[gestureType];
+        // TODO: Find a more efficient way to extract the gesture type
+
+        EnumSet<RazerAPI.GestureType> types = RazerAPI.GestureType.getFromApiValue(gestureType); //RazerAPI.GestureType.values()[gestureType];
+
+        if (types.size() != 1) // We should ALWAYS get EXACTLY one gesture
+            throw new IllegalArgumentException("gestureType did not contain exactly 1 gesture!");
+
+        RazerAPI.GestureType type = (RazerAPI.GestureType) types.toArray()[0];
 
         onGesture(type, parameters, x, y, z);
 

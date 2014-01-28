@@ -59,6 +59,10 @@ public class DynamicKey {
     }
 
     public DynamicKey(RazerAPI.DynamicKeyType keyType, String image, String pressedImage) throws RazerNativeException {
+        this(keyType, image, pressedImage, null);
+    }
+
+    public DynamicKey(RazerAPI.DynamicKeyType keyType, String image, String pressedImage, DynamicKeyListener listener) throws RazerNativeException {
         log = LogManager.getLogger();
 
         if (image == null || image.isEmpty())
@@ -82,6 +86,11 @@ public class DynamicKey {
 
         log.debug("Initializing listener array");
         listeners = new ArrayList<DynamicKeyListener>();
+
+        if (listener != null) {
+            log.debug("Listener object supplied, adding it to listener list");
+            addListener(listener);
+        }
     }
 
     public String getUpImage() {
@@ -144,6 +153,10 @@ public class DynamicKey {
 
     public void refresh() throws RazerNativeException {
         setImages(upImage, downImage);
+    }
+
+    public void disable() {
+        // TODO: Set a black image
     }
 
     public void addListener(DynamicKeyListener listener) {

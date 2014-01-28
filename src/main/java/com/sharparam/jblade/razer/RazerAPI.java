@@ -146,20 +146,20 @@ public class RazerAPI {
     /**
      * Interface implementing callback function for the dynamic key callback.
      */
-    interface DynamicKeyCallbackFunction extends StdCallLibrary.StdCallCallback {
+    interface DynamicKeyCallbackInterface extends StdCallLibrary.StdCallCallback {
         /**
          * Method handling the dynamic key callback.
-         * @param rawDynamicKeyType The key type that was changed.
-         * @param rawDynamicKeyState The new state of the key.
+         * @param dynamicKeyType The key type that was changed.
+         * @param dynamicKeyState The new state of the key.
          * @return HRESULT code indicating success or failure.
          */
-        int callback(int rawDynamicKeyType, int rawDynamicKeyState);
+        int callback(int dynamicKeyType, int dynamicKeyState);
     }
 
     /**
      * Interface implementing callback function for the app event callback.
      */
-    interface AppEventCallbackFunction extends StdCallLibrary.StdCallCallback {
+    interface AppEventCallbackInterface extends StdCallLibrary.StdCallCallback {
         /**
          * Method handling the app event callback.
          * @param appEventType The type of app event.
@@ -173,7 +173,7 @@ public class RazerAPI {
     /**
      * Interface implementing callback function for the touchpad gesture callback.
      */
-    interface TouchpadGestureCallbackFunction extends StdCallLibrary.StdCallCallback {
+    interface TouchpadGestureCallbackInterface extends StdCallLibrary.StdCallCallback {
         /**
          * Method handling the touchpad gesture callback.
          * @param gestureType The type of gesture.
@@ -190,7 +190,7 @@ public class RazerAPI {
     /**
      * Interface implementing callback function for the keyboard callback.
      */
-    interface KeyboardCallbackFunction extends StdCallLibrary.StdCallCallback {
+    interface KeyboardCallbackInterface extends StdCallLibrary.StdCallCallback {
         /**
          * Method handling the keyboard callback.
          * @param uMsg Indicates the keyboard event (WM_KEYDOWN, WM_KEYUP, WM_CHAR).
@@ -198,7 +198,7 @@ public class RazerAPI {
          * @param lParam Indicates key modifiers (CTRL, ALT, SHIFT).
          * @return HRESULT code indicating success or failure.
          */
-        int invoke(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
+        int callback(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
     }
 
     /**
@@ -1066,7 +1066,7 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBAppEventSetCallback(AppEventCallbackFunction callback) {
+    public Hresult RzSBAppEventSetCallback(AppEventCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBAppEventSetCallback(callback));
     }
 
@@ -1075,7 +1075,7 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBDynamicKeySetCallback(DynamicKeyCallbackFunction callback) {
+    public Hresult RzSBDynamicKeySetCallback(DynamicKeyCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBDynamicKeySetCallback(callback));
     }
 
@@ -1098,7 +1098,7 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBKeyboardCaptureSetCallback(KeyboardCallbackFunction callback) {
+    public Hresult RzSBKeyboardCaptureSetCallback(KeyboardCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBKeyboardCaptureSetCallback(callback));
     }
 
@@ -1107,7 +1107,7 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBGestureSetCallback(TouchpadGestureCallbackFunction callback) {
+    public Hresult RzSBGestureSetCallback(TouchpadGestureCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBGestureSetCallback(callback));
     }
 
