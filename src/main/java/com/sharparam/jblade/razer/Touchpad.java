@@ -36,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -283,8 +284,8 @@ public class Touchpad {
         setOSGesture(gestureTypes, false);
     }
 
-    // TODO: Implement DrawBitmap
-    public void DrawBitmap(/* TODO: Add bitmap parameter */) {
+    public void drawImage(BufferedImage image) {
+        // TODO: Implement
         throw new NotImplementedException();
     }
 
