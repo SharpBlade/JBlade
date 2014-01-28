@@ -30,6 +30,7 @@ package com.sharparam.jblade.razer;
 
 import com.sharparam.jblade.ModifierKeys;
 import com.sharparam.jblade.razer.events.*;
+import com.sharparam.jblade.razer.exceptions.RazerDynamicKeyException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
 import com.sharparam.jblade.razer.exceptions.RazerUnstableShutdownException;
@@ -280,7 +281,37 @@ public class RazerManager {
         return dynamicKeys[keyType.ordinal() - 1];
     }
 
-    // TODO: Implement EnableDynamicKey and DisableDynamicKey
+    public DynamicKey enableDynamicKey(RazerAPI.DynamicKeyType type, DynamicKeyListener listener,
+                                       String image, String pressedImage, boolean replace) throws RazerDynamicKeyException {
+        int index = type.ordinal() - 1;
+
+        if (dynamicKeys[index] != null && !replace) {
+            log.info("Dynamic key {} already enabled and replace is false", type);
+            return dynamicKeys[index];
+        }
+
+        log.debug("Resetting dynamic key {}", type);
+        disableDynamicKey(type);
+
+        try {
+            log.debug("Creating new DynamicKey object");
+            DynamicKey dk = new DynamicKey(type, image, pressedImage, listener);
+            dynamicKeys[index] = dk;
+        } catch (RazerNativeException ex) {
+            log.error("Failed to enable dynamic key {}: {}", type, ex.getHresult().name());
+            throw new RazerDynamicKeyException(String.format("Failed to enable dynamic key %s due to a native call exception.", type), ex);
+        }
+
+        return dynamicKeys[index];
+    }
+
+    public void disableDynamicKey(RazerAPI.DynamicKeyType type) {
+        int index = type.ordinal() - 1;
+        DynamicKey dk = dynamicKeys[index];
+        if (dk != null)
+            dk.disable();
+        dynamicKeys[index] = null;
+    }
 
     public void setKeyboardCapture(boolean enabled) throws RazerNativeException {
         if (enabled == keyboardCapture)
