@@ -40,8 +40,6 @@ import com.sun.jna.platform.win32.WinDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -51,12 +49,6 @@ import java.util.List;
  * @author Sharparam
  */
 public class RazerManager {
-    /**
-     * The file name to use when creating the control file.
-     */
-    public static final String RAZER_CONTROL_FILE = "DO_NOT_TOUCH__RAZER_CONTROL_FILE";
-
-    private static final Logger STATIC_LOG = LogManager.getLogger();
     private final Logger log;
 
     private static RazerManager instance;
@@ -80,48 +72,13 @@ public class RazerManager {
     private boolean keyboardCapture;
 
     /**
-     * Initializes a new instance of the RazerManager class with default settings.
-     * Equivalent to calling RazerManager(true, false);
-     * @throws RazerUnstableShutdownException Thrown if the application was not shut down properly on last run.
+     * Initializes a new instance of the RazerManager class.
      * @throws RazerNativeException Thrown if any native call fails during initialization.
      */
     private RazerManager() throws RazerUnstableShutdownException, RazerNativeException {
-        this(true);
-    }
-
-    /**
-     * Initializes a new instance of the RazerManager class with default setting for useControlFile.
-     * Equivalent to calling RazerManager(..., false);
-     * @param disableOSGestures If true, all OS gestures will by default be disabled on the touchpad,
-     *                          making it do nothing until gestures are enabled manually.
-     * @throws RazerUnstableShutdownException Thrown if the application was not shut down properly on last run.
-     * @throws RazerNativeException Thrown if any native call fails during initialization.
-     */
-    private RazerManager(boolean disableOSGestures) throws RazerUnstableShutdownException, RazerNativeException {
-        this(disableOSGestures, false);
-    }
-
-    /**
-     * Initializes a new instance of the RazerManager class.
-     * @param disableOSGestures If true, all OS gestures will by default be disabled on the touchpad,
-     *                          making it do nothing until gestures are enabled manually.
-     * @param useControlFile If true, creates a control file that is checked on subsequent creations of RazerManager,
-     *                       initialization will fail if a control file is found and useControlFile is true.
-     * @throws RazerUnstableShutdownException Thrown if the application was not shut down properly on last run.
-     * @throws RazerNativeException Thrown if any native call fails during initialization.
-     */
-    private RazerManager(boolean disableOSGestures, boolean useControlFile) throws RazerUnstableShutdownException, RazerNativeException {
         log = LogManager.getLogger();
 
         log.info("RazerManager is initializing");
-
-        if (useControlFile && isControlFilePresent()) {
-            log.error("Detected control file presence, throwing exception.");
-            throw new RazerUnstableShutdownException();
-        }
-
-        if (useControlFile)
-            createControlFile();
 
         log.debug("Getting RazerLibrary instance");
 
@@ -154,10 +111,8 @@ public class RazerManager {
 
         touchpad = Touchpad.getInstance();
 
-        if (disableOSGestures) {
-            log.debug("disableOSGestures == true; Calling touchpad.disableOSGesture(ALL)");
-            touchpad.disableOSGesture(RazerAPI.GestureType.ALL);
-        }
+        log.debug("Calling touchpad.disableOSGesture(ALL)");
+        touchpad.disableOSGesture(RazerAPI.GestureType.ALL);
 
         log.debug("Registering dynamic key callback");
 
@@ -227,53 +182,9 @@ public class RazerManager {
         return keyboardCapture;
     }
 
-    /**
-     * Checks if the Razer control file exists.
-     * @return True if the control file exists, false otherwise.
-     */
-    public static boolean isControlFilePresent() {
-        return new File(RAZER_CONTROL_FILE).exists();
-    }
-
-    /**
-     * Creates the Razer control file.
-     */
-    public static void createControlFile() {
-        try {
-            File controlFile = new File(RAZER_CONTROL_FILE);
-            boolean result = controlFile.createNewFile();
-            if (result) {
-                STATIC_LOG.info("createControlFile: Success!");
-            } else {
-                STATIC_LOG.warn("createControlFile: File already exists");
-            }
-        } catch (IOException ex) {
-            STATIC_LOG.error("createControlFile: Failed to create control file due to IOException.", ex);
-        }
-    }
-
-    /**
-     * Deletes the Razer control file.
-     */
-    public static void deleteControlFile() {
-        File controlFile = new File(RAZER_CONTROL_FILE);
-        boolean result = controlFile.delete();
-        if (result) {
-            STATIC_LOG.info("deleteControlFile: Success!");
-        } else {
-            STATIC_LOG.warn("deleteControlFile: Failed to delete control files, does it exist?");
-        }
-    }
-
     public void stop() {
-        stop(true);
-    }
-
-    public void stop(boolean cleanup) {
         log.info("RazerManager is stopping! Calling RzSBStop...");
         razerAPI.RzSBStop();
-        if (cleanup)
-            deleteControlFile();
         log.info("RazerManager has stopped.");
     }
 
