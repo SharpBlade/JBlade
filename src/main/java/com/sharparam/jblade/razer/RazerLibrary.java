@@ -126,14 +126,14 @@ public interface RazerLibrary extends Library {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBAppEventSetCallback(RazerAPI.AppEventCallbackFunction callback);
+    int RzSBAppEventSetCallback(RazerAPI.AppEventCallbackInterface callback);
 
     /**
      * Sets the callback function for dynamic key events.
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBDynamicKeySetCallback(RazerAPI.DynamicKeyCallbackFunction callback);
+    int RzSBDynamicKeySetCallback(RazerAPI.DynamicKeyCallbackInterface callback);
 
     /**
      * Enables or disables the keyboard capture functionality.
@@ -152,14 +152,14 @@ public interface RazerLibrary extends Library {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBKeyboardCaptureSetCallback(RazerAPI.KeyboardCallbackFunction callback);
+    int RzSBKeyboardCaptureSetCallback(RazerAPI.KeyboardCallbackInterface callback);
 
     /**
      * Sets the callback function for gesture events.
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    int RzSBGestureSetCallback(RazerAPI.TouchpadGestureCallbackFunction callback);
+    int RzSBGestureSetCallback(RazerAPI.TouchpadGestureCallbackInterface callback);
 
     /**
      * Enables or disables gesture events.

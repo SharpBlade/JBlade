@@ -49,8 +49,7 @@ import java.util.List;
  * Created on 2014-01-24.
  * @author Sharparam
  */
-public class RazerManager implements RazerAPI.AppEventCallbackFunction,
-        RazerAPI.DynamicKeyCallbackFunction, RazerAPI.KeyboardCallbackFunction {
+public class RazerManager {
     /**
      * The file name to use when creating the control file.
      */
@@ -63,9 +62,9 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
 
     private final RazerAPI razerAPI;
 
-    private static RazerAPI.AppEventCallbackFunction appEventCallback;
-    private static RazerAPI.DynamicKeyCallbackFunction dkCallback;
-    private static RazerAPI.KeyboardCallbackFunction keyboardCallback;
+    private static RazerAPI.AppEventCallbackInterface appEventCallback;
+    private static RazerAPI.DynamicKeyCallbackInterface dkCallback;
+    private static RazerAPI.KeyboardCallbackInterface keyboardCallback;
 
     private final List<AppEventListener> appEventListeners;
     private final List<DynamicKeyListener> dynamicKeyListeners;
@@ -139,7 +138,12 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
 
         log.debug("Registering app event callback");
 
-        appEventCallback = this;
+        appEventCallback = new RazerAPI.AppEventCallbackInterface() {
+            @Override
+            public int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
+                return appEventCallbackFunction(appEventType, dwAppMode, dwProcessID);
+            }
+        };
 
         result = razerAPI.RzSBAppEventSetCallback(appEventCallback);
         if (result.failed())
@@ -156,14 +160,26 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
 
         log.debug("Registering dynamic key callback");
 
-        dkCallback = this;
+        dkCallback = new RazerAPI.DynamicKeyCallbackInterface() {
+            @Override
+            public int callback(int dynamicKeyType, int dynamicKeyState) {
+                return dynamicKeyCallbackFunction(dynamicKeyType, dynamicKeyState);
+            }
+        };
 
         result = razerAPI.RzSBDynamicKeySetCallback(dkCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBDynamicKeySetCallback", result);
 
         log.debug("Registering keyboard callback");
-        keyboardCallback = this;
+
+        keyboardCallback = new RazerAPI.KeyboardCallbackInterface() {
+            @Override
+            public int callback(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam) {
+                return keyboardCallbackFunction(uMsg, wParam, lParam);
+            }
+        };
+
         result = razerAPI.RzSBKeyboardCaptureSetCallback(keyboardCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBKeyboardCaptureSetCallback", result);
@@ -395,8 +411,7 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     }
 
     // App event handler
-    @Override
-    public int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
+    private int appEventCallbackFunction(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
         RazerAPI.AppEventType eventType = RazerAPI.AppEventType.values()[appEventType];
@@ -423,17 +438,16 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     }
 
     // Dynamic key event handler
-    @Override
-    public int callback(int rawDynamicKeyType, int rawDynamicKeyState) {
+    private int dynamicKeyCallbackFunction(int dynamicKeyType, int dynamicKeyState) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
-        RazerAPI.DynamicKeyType dkType = RazerAPI.DynamicKeyType.values()[rawDynamicKeyType];
-        RazerAPI.DynamicKeyState state = RazerAPI.DynamicKeyState.values()[rawDynamicKeyState];
+        RazerAPI.DynamicKeyType dkType = RazerAPI.DynamicKeyType.values()[dynamicKeyType];
+        RazerAPI.DynamicKeyState state = RazerAPI.DynamicKeyState.values()[dynamicKeyState];
 
         int index = dkType.ordinal() - 1;
         DynamicKey dk = dynamicKeys[index];
         if (dk == null) {
-            log.debug("Key has not been registered by app");
+            log.debug("Key {} has not been registered by app", dkType);
             return result.getVal();
         }
 
@@ -457,8 +471,7 @@ public class RazerManager implements RazerAPI.AppEventCallbackFunction,
     }
 
     // Keyboard event handler
-    @Override
-    public int callback(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
+    private int keyboardCallbackFunction(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
         char asChar = (char) data.intValue();

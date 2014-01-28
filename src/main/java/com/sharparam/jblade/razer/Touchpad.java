@@ -44,13 +44,13 @@ import java.util.List;
  * Created on 2014-01-24.
  * @author Sharparam
  */
-public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
+public class Touchpad {
     private static Touchpad instance;
 
     private final Logger log;
     private final RazerAPI razerAPI;
 
-    private static RazerAPI.TouchpadGestureCallbackFunction gestureCallback;
+    private static RazerAPI.TouchpadGestureCallbackInterface gestureCallback;
 
     private final List<GestureListener> gestureListeners;
     private final List<FlickGestureListener> flickGestureListeners;
@@ -81,7 +81,14 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
         log.debug("Getting Razer API instance");
         razerAPI = RazerAPI.INSTANCE;
         log.debug("Setting gesture callback");
-        gestureCallback = this;
+
+        gestureCallback = new RazerAPI.TouchpadGestureCallbackInterface() {
+            @Override
+            public int callback(int gestureType, WinDef.UINT dwParameters, WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
+                return gestureCallbackFunction(gestureType, dwParameters, wXPos, wYPos, wZPos);
+            }
+        };
+
         RazerAPI.Hresult result = razerAPI.RzSBGestureSetCallback(gestureCallback);
         if (result.failed())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
@@ -470,8 +477,7 @@ public class Touchpad implements RazerAPI.TouchpadGestureCallbackFunction {
     }
 
     // Touchpad gesture event handler
-    @Override
-    public int callback(int gestureType, WinDef.UINT dwParameters,
+    private int gestureCallbackFunction(int gestureType, WinDef.UINT dwParameters,
                         WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
         RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
