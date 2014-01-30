@@ -36,11 +36,11 @@ package com.sharparam.jblade.razer.exceptions;
 public class RazerInvalidTargetDisplayException extends RazerException {
     private static final String MESSAGE_PREFIX = "Invalid target display value: ";
 
-    public RazerInvalidTargetDisplayException(int value) {
+    public RazerInvalidTargetDisplayException(final int value) {
         super(MESSAGE_PREFIX + value);
     }
 
-    public RazerInvalidTargetDisplayException(int value, Throwable cause) {
+    public RazerInvalidTargetDisplayException(final int value, final Throwable cause) {
         super(MESSAGE_PREFIX + value, cause);
     }
 }

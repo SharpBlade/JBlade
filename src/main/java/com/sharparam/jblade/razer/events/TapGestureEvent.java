@@ -37,7 +37,7 @@ public class TapGestureEvent {
     private final short x;
     private final short y;
 
-    public TapGestureEvent(short x, short y) {
+    public TapGestureEvent(final short x, final short y) {
         this.x = x;
         this.y = y;
     }

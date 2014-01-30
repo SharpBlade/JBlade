@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer;
 
+import com.sharparam.jblade.annotations.APIComponent;
+import com.sharparam.jblade.annotations.NativeCodeBinding;
 import com.sharparam.jblade.razer.events.*;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
 import com.sharparam.jblade.razer.listeners.*;
@@ -85,13 +87,13 @@ public class Touchpad {
 
         gestureCallback = new RazerAPI.TouchpadGestureCallbackInterface() {
             @Override
-            public int callback(int gestureType, WinDef.UINT dwParameters, WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
+            public int callback(final int gestureType, final WinDef.UINT dwParameters, final WinDef.USHORT wXPos, final WinDef.USHORT wYPos, final WinDef.USHORT wZPos) {
                 return gestureCallbackFunction(gestureType, dwParameters, wXPos, wYPos, wZPos);
             }
         };
 
-        RazerAPI.Hresult result = razerAPI.RzSBGestureSetCallback(gestureCallback);
-        if (result.failed())
+        final RazerAPI.Hresult result = razerAPI.RzSBGestureSetCallback(gestureCallback);
+        if (result.isError())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
 
         log.debug("Initializing gesture listener list");
@@ -123,21 +125,25 @@ public class Touchpad {
         return instance;
     }
 
+    @APIComponent
     public enum RenderMethod {
         EVENT,
         POLLING
     }
 
+    @APIComponent
     public String getCurrentImage() {
         return currentImage;
     }
 
-    public void setGesture(RazerAPI.GestureType gestureType, boolean enabled) throws RazerNativeException {
+    @APIComponent
+    public void setGesture(final RazerAPI.GestureType gestureType, final boolean enabled) throws RazerNativeException {
         setGesture(EnumSet.of(gestureType), enabled);
     }
 
-    public void setGesture(EnumSet<RazerAPI.GestureType> gestureTypes, boolean enabled) throws RazerNativeException {
-        EnumSet<RazerAPI.GestureType> newGestures;
+    @APIComponent
+    public void setGesture(final EnumSet<RazerAPI.GestureType> gestureTypes, final boolean enabled) throws RazerNativeException {
+        final EnumSet<RazerAPI.GestureType> newGestures;
 
         if (gestureTypes.contains(RazerAPI.GestureType.ALL))
             newGestures = gestureTypes;
@@ -178,11 +184,11 @@ public class Touchpad {
         }
 
         RazerAPI.Hresult result = razerAPI.RzSBEnableGesture(newGestures, enabled);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBEnableGesture", result);
 
         result = razerAPI.RzSBGestureSetCallback(gestureCallback);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
 
         activeGestures = newGestures;
@@ -191,28 +197,34 @@ public class Touchpad {
                              enabled;
     }
 
-    public void enableGesture(RazerAPI.GestureType gestureType) throws RazerNativeException {
+    @APIComponent
+    public void enableGesture(final RazerAPI.GestureType gestureType) throws RazerNativeException {
         setGesture(gestureType, true);
     }
 
-    public void enableGestures(EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
+    @APIComponent
+    public void enableGestures(final EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
         setGesture(gestureTypes, true);
     }
 
-    public void disableGesture(RazerAPI.GestureType gestureType) throws RazerNativeException {
+    @APIComponent
+    public void disableGesture(final RazerAPI.GestureType gestureType) throws RazerNativeException {
         setGesture(gestureType, false);
     }
 
-    public void disableGestures(EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
+    @APIComponent
+    public void disableGestures(final EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
         setGesture(gestureTypes, false);
     }
 
-    public void setOSGesture(RazerAPI.GestureType gestureType, boolean enabled) throws RazerNativeException {
+    @APIComponent
+    public void setOSGesture(final RazerAPI.GestureType gestureType, final boolean enabled) throws RazerNativeException {
         setOSGesture(EnumSet.of(gestureType), enabled);
     }
 
-    public void setOSGesture(EnumSet<RazerAPI.GestureType> gestureTypes, boolean enabled) throws RazerNativeException {
-        EnumSet<RazerAPI.GestureType> newGestures;
+    @APIComponent
+    public void setOSGesture(final EnumSet<RazerAPI.GestureType> gestureTypes, final boolean enabled) throws RazerNativeException {
+        final EnumSet<RazerAPI.GestureType> newGestures;
 
         if (gestureTypes.contains(RazerAPI.GestureType.ALL))
             newGestures = gestureTypes;
@@ -255,11 +267,11 @@ public class Touchpad {
         }
 
         RazerAPI.Hresult result = razerAPI.RzSBEnableGesture(newGestures, enabled);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBEnableGesture", result);
 
         result = razerAPI.RzSBEnableOSGesture(newGestures, enabled);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBEnableOSGesture", result);
 
         activeOSGestures = newGestures;
@@ -268,233 +280,261 @@ public class Touchpad {
                 enabled;
     }
 
-    public void enableOSGesture(RazerAPI.GestureType gestureType) throws RazerNativeException {
+    @APIComponent
+    public void enableOSGesture(final RazerAPI.GestureType gestureType) throws RazerNativeException {
         setOSGesture(gestureType, true);
     }
 
-    public void enableOSGestures(EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
+    @APIComponent
+    public void enableOSGestures(final EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
         setOSGesture(gestureTypes, true);
     }
 
-    public void disableOSGesture(RazerAPI.GestureType gestureType) throws RazerNativeException {
+    @APIComponent
+    public void disableOSGesture(final RazerAPI.GestureType gestureType) throws RazerNativeException {
         setOSGesture(gestureType, false);
     }
 
-    public void disableOSGestures(EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
+    @APIComponent
+    public void disableOSGestures(final EnumSet<RazerAPI.GestureType> gestureTypes) throws RazerNativeException {
         setOSGesture(gestureTypes, false);
     }
 
-    public void drawImage(BufferedImage image) {
+    @APIComponent
+    public void drawImage(final BufferedImage image) {
         // TODO: Implement
         throw new NotImplementedException();
     }
 
-    public void setImage(String image) throws RazerNativeException {
-        RazerAPI.Hresult result = razerAPI.RzSBSetImageTouchpad(image);
-        if (result.failed())
+    @APIComponent
+    public void setImage(final String image) throws RazerNativeException {
+        final RazerAPI.Hresult result = razerAPI.RzSBSetImageTouchpad(image);
+        if (result.isError())
             throw new RazerNativeException("RzSBSetImageTouchpad", result);
 
         currentImage = image;
     }
 
-    public void addGestureListener(GestureListener listener) {
+    @APIComponent
+    public void addGestureListener(final GestureListener listener) {
         gestureListeners.add(listener);
     }
 
-    public void removeGestureListener(GestureListener listener) {
+    @APIComponent
+    public void removeGestureListener(final GestureListener listener) {
         if (gestureListeners.contains(listener))
             gestureListeners.remove(listener);
     }
 
-    private void onGesture(RazerAPI.GestureType gestureType, int parameters, short x, short y, short z) {
+    private void onGesture(final RazerAPI.GestureType gestureType, final int parameters,
+                           final short x, final short y, final short z) {
         if (gestureListeners.isEmpty())
             return;
 
-        GestureEvent event = new GestureEvent(gestureType, parameters, x, y, z);
-        for (GestureListener listener : gestureListeners)
+        final GestureEvent event = new GestureEvent(gestureType, parameters, x, y, z);
+        for (final GestureListener listener : gestureListeners)
             listener.gesturePerformed(event);
     }
 
-    public void addFlickGestureListener(FlickGestureListener listener) {
+    @APIComponent
+    public void addFlickGestureListener(final FlickGestureListener listener) {
         flickGestureListeners.add(listener);
     }
 
-    public void removeFlickGestureListener(FlickGestureListener listener) {
+    @APIComponent
+    public void removeFlickGestureListener(final FlickGestureListener listener) {
         if (flickGestureListeners.contains(listener))
             flickGestureListeners.remove(listener);
     }
 
-    private void onFlickGesture(int touchpointCount, RazerAPI.Direction direction) {
+    private void onFlickGesture(final int touchpointCount, final RazerAPI.Direction direction) {
         if (flickGestureListeners.isEmpty())
             return;
 
-        FlickGestureEvent event = new FlickGestureEvent(touchpointCount, direction);
-        for (FlickGestureListener listener : flickGestureListeners)
+        final FlickGestureEvent event = new FlickGestureEvent(touchpointCount, direction);
+        for (final FlickGestureListener listener : flickGestureListeners)
             listener.flickGesturePerformed(event);
     }
 
-    public void addHoldGestureListener(HoldGestureListener listener) {
+    @APIComponent
+    public void addHoldGestureListener(final HoldGestureListener listener) {
         holdGestureListeners.add(listener);
     }
 
-    public void removeHoldGestureListener(HoldGestureListener listener) {
+    @APIComponent
+    public void removeHoldGestureListener(final HoldGestureListener listener) {
         if (holdGestureListeners.contains(listener))
             holdGestureListeners.remove(listener);
     }
 
-    private void onHoldGesture(int parameters, short x, short y, short z) {
+    private void onHoldGesture(final int parameters, final short x, final short y, final short z) {
         if (holdGestureListeners.isEmpty())
             return;
 
-        GestureEvent event = new GestureEvent(RazerAPI.GestureType.HOLD, parameters, x, y, z);
-        for (HoldGestureListener listener : holdGestureListeners)
+        final GestureEvent event = new GestureEvent(RazerAPI.GestureType.HOLD, parameters, x, y, z);
+        for (final HoldGestureListener listener : holdGestureListeners)
             listener.holdGesturePerformed(event);
     }
 
-    public void addMoveGestureListener(MoveGestureListener listener) {
+    @APIComponent
+    public void addMoveGestureListener(final MoveGestureListener listener) {
         moveGestureListeners.add(listener);
     }
 
-    public void removeMoveGestureListener(MoveGestureListener listener) {
+    @APIComponent
+    public void removeMoveGestureListener(final MoveGestureListener listener) {
         if (moveGestureListeners.contains(listener))
             moveGestureListeners.remove(listener);
     }
 
-    private void onMoveGesture(short x, short y) {
+    private void onMoveGesture(final short x, final short y) {
         if (moveGestureListeners.isEmpty())
             return;
 
-        MoveGestureEvent event = new MoveGestureEvent(x, y);
-        for (MoveGestureListener listener : moveGestureListeners)
+        final MoveGestureEvent event = new MoveGestureEvent(x, y);
+        for (final MoveGestureListener listener : moveGestureListeners)
             listener.moveGesturePerformed(event);
     }
 
-    public void addPressGestureListener(PressGestureListener listener) {
+    @APIComponent
+    public void addPressGestureListener(final PressGestureListener listener) {
         pressGestureListeners.add(listener);
     }
 
-    public void removePressGestureListener(PressGestureListener listener) {
+    @APIComponent
+    public void removePressGestureListener(final PressGestureListener listener) {
         if (pressGestureListeners.contains(listener))
             pressGestureListeners.remove(listener);
     }
 
-    private void onPressGesture(int touchpointCount, short x, short y) {
+    private void onPressGesture(final int touchpointCount, final short x, final short y) {
         if (pressGestureListeners.isEmpty())
             return;
 
-        PressGestureEvent event = new PressGestureEvent(touchpointCount, x, y);
-        for (PressGestureListener listener : pressGestureListeners)
+        final PressGestureEvent event = new PressGestureEvent(touchpointCount, x, y);
+        for (final PressGestureListener listener : pressGestureListeners)
             listener.pressGesturePerformed(event);
     }
 
-    public void addReleaseGestureListener(ReleaseGestureListener listener) {
+    @APIComponent
+    public void addReleaseGestureListener(final ReleaseGestureListener listener) {
         releaseGestureListeners.add(listener);
     }
 
-    public void removeReleaseGestureListener(ReleaseGestureListener listener) {
+    @APIComponent
+    public void removeReleaseGestureListener(final ReleaseGestureListener listener) {
         if (releaseGestureListeners.contains(listener))
             releaseGestureListeners.remove(listener);
     }
 
-    private void onReleaseGesture(int touchpointCount, short x, short y) {
+    private void onReleaseGesture(final int touchpointCount, final short x, final short y) {
         if (releaseGestureListeners.isEmpty())
             return;
 
-        ReleaseGestureEvent event = new ReleaseGestureEvent(touchpointCount, x, y);
-        for (ReleaseGestureListener listener : releaseGestureListeners)
+        final ReleaseGestureEvent event = new ReleaseGestureEvent(touchpointCount, x, y);
+        for (final ReleaseGestureListener listener : releaseGestureListeners)
             listener.releaseGesturePerformed(event);
     }
 
-    public void addRotateGestureListener(RotateGestureListener listener) {
+    @APIComponent
+    public void addRotateGestureListener(final RotateGestureListener listener) {
         rotateGestureListeners.add(listener);
     }
 
-    public void removeRotateGestureListener(RotateGestureListener listener) {
+    @APIComponent
+    public void removeRotateGestureListener(final RotateGestureListener listener) {
         if (rotateGestureListeners.contains(listener))
             rotateGestureListeners.remove(listener);
     }
 
-    private void onRotateGesture(RotateDirection direction) {
+    private void onRotateGesture(final RotateDirection direction) {
         if (rotateGestureListeners.isEmpty())
             return;
 
-        RotateGestureEvent event = new RotateGestureEvent(direction);
-        for (RotateGestureListener listener : rotateGestureListeners)
+        final RotateGestureEvent event = new RotateGestureEvent(direction);
+        for (final RotateGestureListener listener : rotateGestureListeners)
             listener.rotateGesturePerformed(event);
     }
 
-    public void addScrollGestureListener(ScrollGestureListener listener) {
+    @APIComponent
+    public void addScrollGestureListener(final ScrollGestureListener listener) {
         scrollGestureListeners.add(listener);
     }
 
-    public void removeScrollGestureListener(ScrollGestureListener listener) {
+    @APIComponent
+    public void removeScrollGestureListener(final ScrollGestureListener listener) {
         if (scrollGestureListeners.contains(listener))
             scrollGestureListeners.remove(listener);
     }
 
-    private void onScrollGesture(int parameters, short x, short y, short z) {
+    private void onScrollGesture(final int parameters, final short x, final short y, final short z) {
         if (scrollGestureListeners.isEmpty())
             return;
 
-        GestureEvent event = new GestureEvent(RazerAPI.GestureType.SCROLL, parameters, x, y, z);
-        for (ScrollGestureListener listener : scrollGestureListeners)
+        final GestureEvent event = new GestureEvent(RazerAPI.GestureType.SCROLL, parameters, x, y, z);
+        for (final ScrollGestureListener listener : scrollGestureListeners)
             listener.scrollGesturePerformed(event);
     }
 
-    public void addTapGestureListener(TapGestureListener listener) {
+    @APIComponent
+    public void addTapGestureListener(final TapGestureListener listener) {
         tapGestureListeners.add(listener);
     }
 
-    public void removeTapGestureListener(TapGestureListener listener) {
+    @APIComponent
+    public void removeTapGestureListener(final TapGestureListener listener) {
         if (tapGestureListeners.contains(listener))
             tapGestureListeners.remove(listener);
     }
 
-    private void onTapGesture(short x, short y) {
+    private void onTapGesture(final short x, final short y) {
         if (tapGestureListeners.isEmpty())
             return;
 
-        TapGestureEvent event = new TapGestureEvent(x, y);
-        for (TapGestureListener listener : tapGestureListeners)
+        final TapGestureEvent event = new TapGestureEvent(x, y);
+        for (final TapGestureListener listener : tapGestureListeners)
             listener.tapGesturePerformed(event);
     }
 
-    public void addZoomGestureListener(ZoomGestureListener listener) {
+    @APIComponent
+    public void addZoomGestureListener(final ZoomGestureListener listener) {
         zoomGestureListeners.add(listener);
     }
 
-    public void removeZoomGestureListener(ZoomGestureListener listener) {
+    @APIComponent
+    public void removeZoomGestureListener(final ZoomGestureListener listener) {
         if (zoomGestureListeners.contains(listener))
             zoomGestureListeners.remove(listener);
     }
 
-    private void onZoomGesture(ZoomDirection direction) {
+    private void onZoomGesture(final ZoomDirection direction) {
         if (zoomGestureListeners.isEmpty())
             return;
 
-        ZoomGestureEvent event = new ZoomGestureEvent(direction);
-        for (ZoomGestureListener listener : zoomGestureListeners)
+        final ZoomGestureEvent event = new ZoomGestureEvent(direction);
+        for (final ZoomGestureListener listener : zoomGestureListeners)
             listener.zoomGesturePerformed(event);
     }
 
     // Touchpad gesture event handler
-    private int gestureCallbackFunction(int gestureType, WinDef.UINT dwParameters,
-                        WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos) {
-        RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
+    @NativeCodeBinding
+    private int gestureCallbackFunction(final int gestureType, final WinDef.UINT dwParameters,
+                        final WinDef.USHORT wXPos, final WinDef.USHORT wYPos, final WinDef.USHORT wZPos) {
+        final RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
-        int parameters = dwParameters.intValue();
-        short x = wXPos.shortValue();
-        short y = wYPos.shortValue();
-        short z = wZPos.shortValue();
+        final int parameters = dwParameters.intValue();
+        final short x = wXPos.shortValue();
+        final short y = wYPos.shortValue();
+        final short z = wZPos.shortValue();
 
         // TODO: Find a more efficient way to extract the gesture type
 
-        EnumSet<RazerAPI.GestureType> types = RazerAPI.GestureType.getFromApiValue(gestureType); //RazerAPI.GestureType.values()[gestureType];
+        final EnumSet<RazerAPI.GestureType> types = RazerAPI.GestureType.getFromApiValue(gestureType); //RazerAPI.GestureType.values()[gestureType];
 
         if (types.size() != 1) // We should ALWAYS get EXACTLY one gesture
             throw new IllegalArgumentException("gestureType did not contain exactly 1 gesture!");
 
-        RazerAPI.GestureType type = (RazerAPI.GestureType) types.toArray()[0];
+        final RazerAPI.GestureType type = (RazerAPI.GestureType) types.toArray()[0];
 
         onGesture(type, parameters, x, y, z);
 
@@ -506,11 +546,11 @@ public class Touchpad {
                 onTapGesture(x, y);
                 break;
             case FLICK:
-                RazerAPI.Direction flickDirection = RazerAPI.Direction.values()[z];
+                final RazerAPI.Direction flickDirection = RazerAPI.Direction.values()[z];
                 onFlickGesture(parameters, flickDirection);
                 break;
             case ZOOM:
-                ZoomDirection zoomDirection;
+                final ZoomDirection zoomDirection;
                 switch (parameters) {
                     case 1:
                         zoomDirection = ZoomDirection.IN;
@@ -525,7 +565,7 @@ public class Touchpad {
                 onZoomGesture(zoomDirection);
                 break;
             case ROTATE:
-                RotateDirection rotateDirection;
+                final RotateDirection rotateDirection;
                 switch (parameters) {
                     case 1:
                         rotateDirection = RotateDirection.CLOCKWISE;

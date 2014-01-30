@@ -38,7 +38,7 @@ import com.sharparam.jblade.razer.RotateDirection;
 public class RotateGestureEvent {
     private final RotateDirection direction;
 
-    public RotateGestureEvent(RotateDirection direction) {
+    public RotateGestureEvent(final RotateDirection direction) {
         this.direction = direction;
     }
 

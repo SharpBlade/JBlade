@@ -54,19 +54,21 @@
   <inspection_tool class="DoubleLiteralMayBeFloatLiteral" enabled="true" level="WARNING" enabled_by_default="true" />
   <inspection_tool class="EmptyClass" enabled="true" level="WARNING" enabled_by_default="true">
     <option name="ignorableAnnotations">
-      <value />
+      <value>
+        <item value="com.sharparam.jblade.JNAComponent" />
+      </value>
     </option>
     <option name="ignoreClassWithParameterization" value="true" />
     <option name="ignoreThrowables" value="true" />
   </inspection_tool>
   <inspection_tool class="EnumeratedClassNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
     <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
-    <option name="m_minLength" value="8" />
+    <option name="m_minLength" value="6" />
     <option name="m_maxLength" value="64" />
   </inspection_tool>
   <inspection_tool class="EnumeratedConstantNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
     <option name="m_regex" value="[A-Z][A-Z_\d]*" />
-    <option name="m_minLength" value="5" />
+    <option name="m_minLength" value="0" />
     <option name="m_maxLength" value="32" />
   </inspection_tool>
   <inspection_tool class="EqualsAndHashcode" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -75,6 +77,16 @@
     <option name="ignoreCantWrap" value="true" />
   </inspection_tool>
   <inspection_tool class="ExceptionNameDoesntEndWithException" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="FieldCanBeLocal" enabled="true" level="WARNING" enabled_by_default="true">
+    <option name="EXCLUDE_ANNOS">
+      <value>
+        <list size="1">
+          <item index="0" class="java.lang.String" itemvalue="com.sharparam.jblade.NativeCodeBinding" />
+        </list>
+      </value>
+    </option>
+    <option name="IGNORE_FIELDS_USED_IN_MULTIPLE_METHODS" value="true" />
+  </inspection_tool>
   <inspection_tool class="FieldMayBeFinal" enabled="true" level="INFO" enabled_by_default="true" />
   <inspection_tool class="FinalizeNotProtected" enabled="true" level="WARNING" enabled_by_default="true" />
   <inspection_tool class="FloatingPointEquality" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -86,7 +98,7 @@
   </inspection_tool>
   <inspection_tool class="InstanceVariableNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
     <option name="m_regex" value="[a-z][A-Za-z\d]*" />
-    <option name="m_minLength" value="5" />
+    <option name="m_minLength" value="0" />
     <option name="m_maxLength" value="32" />
   </inspection_tool>
   <inspection_tool class="InstanceofCatchParameter" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -174,7 +186,7 @@
     <option name="m_minLength" value="5" />
     <option name="m_maxLength" value="32" />
   </inspection_tool>
-  <inspection_tool class="SuppressionAnnotation" enabled="true" level="INFO" enabled_by_default="true" />
+  <inspection_tool class="SuppressionAnnotation" enabled="false" level="INFO" enabled_by_default="false" />
   <inspection_tool class="SystemOutErr" enabled="true" level="WARNING" enabled_by_default="true">
     <option name="ignoreInTestCode" value="true" />
   </inspection_tool>
@@ -194,7 +206,6 @@
     <option name="m_maxLength" value="1" />
   </inspection_tool>
   <inspection_tool class="UnaryPlus" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="UnclearBinaryExpression" enabled="true" level="WARNING" enabled_by_default="true" />
   <inspection_tool class="UnnecessarilyQualifiedInnerClassAccess" enabled="true" level="WARNING" enabled_by_default="true">
     <option name="ignoreReferencesNeedingImport" value="true" />
   </inspection_tool>

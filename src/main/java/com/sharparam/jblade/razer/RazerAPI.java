@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer;
 
+import com.sharparam.jblade.annotations.APIComponent;
+import com.sharparam.jblade.annotations.JNAComponent;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException;
 import com.sun.jna.Native;
@@ -70,33 +72,39 @@ public class RazerAPI {
     /**
      * Number of dynamic keys per row on the device.
      */
+    @APIComponent
     public static final int DYNAMIC_KEYS_PER_ROW = 5;
 
     /**
      * Number of rows on the dynamic keys.
      */
+    @APIComponent
     public static final int DYNAMIC_KEY_ROWS = 2;
 
     /**
      * Total number of dynamic keys that exist on the device.
      */
+    @APIComponent
     public static final int DYNAMIC_KEYS_COUNT = DYNAMIC_KEYS_PER_ROW * DYNAMIC_KEY_ROWS;
 
     /**
      * The width of one dynamic key, in pixels.
      * Note that this refers to the width of the display area on a dynamic key, not physical size.
      */
+    @APIComponent
     public static final int DYNAMIC_KEY_WIDTH = 115;
 
     /**
      * The height of one dynamic key, in pixels.
      * Note that this refers to the height of the display area on a dynamic key, not physical size.
      */
+    @APIComponent
     public static final int DYNAMIC_KEY_HEIGHT = 115;
 
     /**
      * Size of image data for one dynamic key.
      */
+    @APIComponent
     public static final int DYNAMIC_KEY_IMAGE_DATA_SIZE = DYNAMIC_KEY_WIDTH * DYNAMIC_KEY_HEIGHT * 2;
 
     /*
@@ -106,41 +114,49 @@ public class RazerAPI {
     /**
      * Width of the touchpad on standard devices.
      */
+    @APIComponent
     public static final int TOUCHPAD_WIDTH = 800;
 
     /**
      * Height of the touchpad on standard devices.
      */
+    @APIComponent
     public static final int TOUCHPAD_HEIGHT = 480;
 
     /**
      * Size of image data to cover the touchpad.
      */
+    @APIComponent
     public static final int TOUCHPAD_IMAGE_DATA_SIZE = TOUCHPAD_WIDTH * TOUCHPAD_HEIGHT * 2;
 
     /**
      * Color depth of the device's display areas.
      */
+    @APIComponent
     public static final int DISPLAY_COLOR_DEPTH = 16;
 
     /**
      * Max string length.
      */
+    @APIComponent
     public static final int MAX_STRING_LENGTH = 260;
 
     /**
      * Maximum supported surfaces.
      */
+    @APIComponent
     public static final int MAX_SUPPORTED_SURFACES = 2;
 
     /**
      * Invalid pixel format.
      */
+    @APIComponent
     public static final int PIXEL_FORMAT_INVALID = 0;
 
     /**
      * RGB565 pixel format, used by standard SwitchBlade devices.
      */
+    @APIComponent
     public static final int PIXEL_FORMAT_RGB565 = 1;
 
     /**
@@ -153,6 +169,7 @@ public class RazerAPI {
          * @param dynamicKeyState The new state of the key.
          * @return HRESULT code indicating success or failure.
          */
+        @JNAComponent
         int callback(int dynamicKeyType, int dynamicKeyState);
     }
 
@@ -167,6 +184,7 @@ public class RazerAPI {
          * @param dwProcessID THe process ID.
          * @return HRESULT code indicating success or failure.
          */
+        @JNAComponent
         int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID);
     }
 
@@ -183,6 +201,7 @@ public class RazerAPI {
          * @param wZPos Z position where gesture happened.
          * @return HRESULT code indicating success or failure.
          */
+        @JNAComponent
         int callback(int gestureType, WinDef.UINT dwParameters,
                      WinDef.USHORT wXPos, WinDef.USHORT wYPos, WinDef.USHORT wZPos);
     }
@@ -198,6 +217,7 @@ public class RazerAPI {
          * @param lParam Indicates key modifiers (CTRL, ALT, SHIFT).
          * @return HRESULT code indicating success or failure.
          */
+        @JNAComponent
         int callback(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam);
     }
 
@@ -399,7 +419,7 @@ public class RazerAPI {
 
         private final int val;
 
-        private TargetDisplay(int val) {
+        private TargetDisplay(final int val) {
             this.val = val;
         }
 
@@ -410,8 +430,8 @@ public class RazerAPI {
          * @throws com.sharparam.jblade.razer.exceptions.RazerInvalidTargetDisplayException If the passed in integer value is invalid,
          *                                            a RazerInvalidTargetDisplayException is thrown.
          */
-        public TargetDisplay getTargetDisplayFromApiValue(int val) throws RazerInvalidTargetDisplayException {
-            for (TargetDisplay disp : TargetDisplay.values()) {
+        public TargetDisplay getTargetDisplayFromApiValue(final int val) throws RazerInvalidTargetDisplayException {
+            for (final TargetDisplay disp : TargetDisplay.values()) {
                 if (disp.getVal() == val)
                     return disp;
             }
@@ -435,6 +455,7 @@ public class RazerAPI {
         /**
          * RGB565 pixel format.
          */
+        @APIComponent
         RGB565
     }
 
@@ -496,20 +517,20 @@ public class RazerAPI {
 
         private final int val;
 
-        private AppEventMode(int val) {
+        private AppEventMode(final int val) {
             this.val = val;
         }
 
         /**
          * Converts integer value returned from API functions to an
-         * {@link RazerAPI.AppEventMode} value.
+         * AppEventMode value.
          * @param val Integer value returned from API functions.
          * @return AppEventMode value.
          * @throws RazerInvalidAppEventModeException If the passed in integer value is invalid,
          *                                           a RazerInvalidTargetDisplayException is thrown.
          */
-        public static AppEventMode getAppEventModeFromApiValue(int val) throws RazerInvalidAppEventModeException {
-            for (AppEventMode mode : AppEventMode.values()) {
+        public static AppEventMode getAppEventModeFromApiValue(final int val) throws RazerInvalidAppEventModeException {
+            for (final AppEventMode mode : AppEventMode.values()) {
                 if (mode.getVal() == val)
                     return mode;
             }
@@ -519,7 +540,7 @@ public class RazerAPI {
 
         /**
          * Gets a RazerAPI compatible representation of this
-         * {@link RazerAPI.AppEventMode} value.
+         * AppEventMode value.
          * @return A value usable with RazerLibrary.
          */
         public int getVal() {
@@ -589,49 +610,28 @@ public class RazerAPI {
 
         private final int flagValue;
 
-        private GestureType(int val) {
+        private GestureType(final int val) {
             flagValue = val;
         }
 
         /**
          * Converts an integer value returned from RazerAPI to an EnumSet containing all relevant
-         * {@link RazerAPI.GestureType} flags.
+         * GestureType flags.
          * @param value The API integer value to convert.
          * @return An EnumSet with the GestureType values contained in the integer.
          */
-        public static EnumSet<GestureType> getFromApiValue(int value) {
-            EnumSet<GestureType> result = EnumSet.noneOf(GestureType.class);
+        public static EnumSet<GestureType> getFromApiValue(final int value) {
+            final EnumSet<GestureType> result = EnumSet.noneOf(GestureType.class);
 
-            if ((value & PRESS.getFlagValue()) != 0)
-                result.add(PRESS);
+            final EnumSet<GestureType> normalGestures = EnumSet.range(PRESS, SCROLL);
 
-            if ((value & TAP.getFlagValue()) != 0)
-                result.add(TAP);
-
-            if ((value & FLICK.getFlagValue()) != 0)
-                result.add(FLICK);
-
-            if ((value & ZOOM.getFlagValue()) != 0)
-                result.add(ZOOM);
-
-            if ((value & ROTATE.getFlagValue()) != 0)
-                result.add(ROTATE);
-
-            if ((value & MOVE.getFlagValue()) != 0)
-                result.add(MOVE);
-
-            if ((value & HOLD.getFlagValue()) != 0)
-                result.add(HOLD);
-
-            if ((value & RELEASE.getFlagValue()) != 0)
-                result.add(RELEASE);
-
-            if ((value & SCROLL.getFlagValue()) != 0)
-                result.add(SCROLL);
+            for (final GestureType type : normalGestures)
+                if ((value & type.getFlagValue()) != 0)
+                    result.add(type);
 
             if (result.isEmpty())
                 result.add(NONE); // This is probably useless?
-            else if (result.equals(EnumSet.range(PRESS, SCROLL)))
+            else if (result.equals(normalGestures))
                 result.add(ALL);
 
             return result;
@@ -642,12 +642,11 @@ public class RazerAPI {
          * @param set The EnumSet to convert.
          * @return An integer value representing the gestures in the EnumSet.
          */
-        public static int convertToInteger(EnumSet<GestureType> set) {
+        public static int convertToInteger(final EnumSet<GestureType> set) {
             int result = 0;
 
-            for (GestureType type : set) {
+            for (final GestureType type : set)
                 result |= type.getFlagValue();
-            }
 
             return result;
         }
@@ -663,7 +662,7 @@ public class RazerAPI {
 
     /**
      * Different hardware types returned by
-     * {@link #RzSBQueryCapabilities(com.sharparam.jblade.razer.RazerAPI.Capabilities.ByReference)}.
+     * {@link #RzSBQueryCapabilities(Capabilities.ByReference)}.
      */
     public enum HardwareType {
         /**
@@ -873,7 +872,7 @@ public class RazerAPI {
 
         private final int val;
 
-        private Hresult(int val) {
+        private Hresult(final int val) {
             this.val = val;
         }
 
@@ -881,11 +880,12 @@ public class RazerAPI {
 
         // Useless?
         /**
-         * Checks if a given {@link RazerAPI.Hresult} value means success.
+         * Checks if a given HRESULT value means success.
          * @param value Value to check.
          * @return True if successful, false otherwise.
          */
-        public static boolean success(Hresult value) {
+        @APIComponent
+        public static boolean isSuccessful(final Hresult value) {
             return value == RZSB_OK;
         }
 
@@ -894,7 +894,8 @@ public class RazerAPI {
          * @param value Value to check.
          * @return True if successful, false otherwise.
          */
-        public static boolean success(int value) {
+        @APIComponent
+        public static boolean isSuccessful(final int value) {
             return value == RZSB_OK.getVal();
         }
 
@@ -902,17 +903,19 @@ public class RazerAPI {
          * Checks if this value means success.
          * @return True if successful, false otherwise.
          */
-        public boolean success() {
+        @APIComponent
+        public boolean isSuccessful() {
             return this == RZSB_OK;
         }
 
         // Useless?
         /**
-         * Checks if a given {@link RazerAPI.Hresult} value is erroneous.
+         * Checks if a given HRESULT value is erroneous.
          * @param value Value to check.
          * @return True if erroneous, false otherwise.
          */
-        public static boolean failed(Hresult value) {
+        @APIComponent
+        public static boolean isError(final Hresult value) {
             return value != RZSB_OK;
         }
 
@@ -921,7 +924,8 @@ public class RazerAPI {
          * @param value Value to check.
          * @return True if erroneous, false otherwise.
          */
-        public static boolean failed(int value) {
+        @APIComponent
+        public static boolean isError(final int value) {
             return value != RZSB_OK.getVal();
         }
 
@@ -929,7 +933,8 @@ public class RazerAPI {
          * Checks if this value is erroneous.
          * @return True if erroneous, false otherwise.
          */
-        public boolean failed() {
+        @APIComponent
+        public boolean isError() {
             return this != RZSB_OK;
         }
 
@@ -938,8 +943,8 @@ public class RazerAPI {
          * @param value Value to convert.
          * @return The Hresult value of the integer.
          */
-        public static Hresult getFromApiValue(int value) {
-            for (Hresult err : Hresult.values()) {
+        public static Hresult getFromApiValue(final int value) {
+            for (final Hresult err : Hresult.values()) {
                 if (err.getVal() == value)
                     return err;
             }
@@ -951,6 +956,7 @@ public class RazerAPI {
          * Gets the error code of this Hresult value.
          * @return The error code.
          */
+        @APIComponent
         public int getVal() {
             return val;
         }
@@ -960,7 +966,7 @@ public class RazerAPI {
         log = LogManager.getLogger();
         log.info("RazerAPI is initializing");
         log.debug("Loading RazerLibrary: {}", DLL_NAME);
-        this.lib = (RazerLibrary) Native.loadLibrary(DLL_NAME, RazerLibrary.class);
+        lib = (RazerLibrary) Native.loadLibrary(DLL_NAME, RazerLibrary.class);
         log.debug("RazerLibrary loaded!");
     }
 
@@ -973,12 +979,12 @@ public class RazerAPI {
      * This method must always be accompanied by an {@link #RzSBStop()}.
      * COM initialization should be called prior to calling this method.
      * If the application developer intends to use Single-Threaded Apartment model (STA) and call the SDK
-     * functions within the same thread where the COM was initialized, then <code>CoInitialize()</code> should be called
+     * functions within the same thread where the COM was initialized, then {@code CoInitialize()} should be called
      * before this method. Note that some MFC controls automatically initializes to STA.
      * If the application developer intends to call the SDK functions on different threads,
-     * then the <code>CoInitializeEx()</code> should be called before this method.
+     * then the {@code CoInitializeEx()} should be called before this method.
      * Note: When this method is called without the COM being initialized
-     * (e.g. thru calling <code>CoInitializeEx</code>)
+     * (e.g. thru calling {@code CoInitializeEx})
      * the SDK initializes the COM to Multi-Threaded Apartment (MTA) model.
      * As such, callers must invoke SDK functions from an MTA thread.
      * Future SDK versions will move these calls into an isolated STA, giving application developers additional
@@ -987,6 +993,8 @@ public class RazerAPI {
      * initialization and calls to avoid the issues for COM in different threading models.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
     public Hresult RzSBStart() {
         return Hresult.getFromApiValue(lib.RzSBStart());
     }
@@ -1002,6 +1010,8 @@ public class RazerAPI {
      * other applications may fail to acquire control of the Switchblade device.
      * In this case, manually kill the framework processes.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
     public void RzSBStop() {
         lib.RzSBStop();
     }
@@ -1013,7 +1023,9 @@ public class RazerAPI {
      *                     proper information about the SDK and supported hardware.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBQueryCapabilities(Capabilities.ByReference capabilities) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBQueryCapabilities(final Capabilities.ByReference capabilities) {
         return Hresult.getFromApiValue(lib.RzSBQueryCapabilities(capabilities));
     }
 
@@ -1023,7 +1035,7 @@ public class RazerAPI {
      * display thru this function providing are more direct and faster way of updating the display.
      * Since the function accepts the buffer for bottom-up bitmap,
      * the application should invert the original image along its vertical axis prior to calling the function.
-     * This can be done easily with <code>BitBlit</code> and <code>StretchBlt</code> APIs.
+     * This can be done easily with {@code BitBlit} and {@code StretchBlt} APIs.
      * @param target Specifies the target location on the Switchblade display – the main display or one of the dynamic key areas.
      *               Please refer to the definition for TargetDisplay for accepted values.
      * @param bufferParams A pointer to a buffer parameter structure of type BufferParams that
@@ -1032,7 +1044,9 @@ public class RazerAPI {
      *                     Please refer to the definition for BufferParams for further detail.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBRenderBuffer(TargetDisplay target, BufferParams.ByValue bufferParams) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBRenderBuffer(final TargetDisplay target, final BufferParams.ByValue bufferParams) {
         return Hresult.getFromApiValue(lib.RzSBRenderBuffer(target.getVal(), bufferParams));
     }
 
@@ -1045,7 +1059,9 @@ public class RazerAPI {
      *                 Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBSetImageDynamicKey(DynamicKeyType dk, DynamicKeyState state, String filename) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBSetImageDynamicKey(final DynamicKeyType dk, final DynamicKeyState state, final String filename) {
         return Hresult.getFromApiValue(lib.RzSBSetImageDynamicKey(dk, state, filename));
     }
 
@@ -1056,9 +1072,11 @@ public class RazerAPI {
      *                 This image should be 800 x 480 pixels in dimension. Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBSetImageTouchpad(String filename) {
-        WString str = new WString(filename);
-        return Hresult.getFromApiValue(lib.RzSBSetImageTouchpad(str));
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBSetImageTouchpad(final String filename) {
+        final WString wStr = new WString(filename);
+        return Hresult.getFromApiValue(lib.RzSBSetImageTouchpad(wStr));
     }
 
     /**
@@ -1066,7 +1084,9 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBAppEventSetCallback(AppEventCallbackInterface callback) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBAppEventSetCallback(final AppEventCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBAppEventSetCallback(callback));
     }
 
@@ -1075,7 +1095,9 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBDynamicKeySetCallback(DynamicKeyCallbackInterface callback) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBDynamicKeySetCallback(final DynamicKeyCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBDynamicKeySetCallback(callback));
     }
 
@@ -1089,7 +1111,9 @@ public class RazerAPI {
      * @param enable The enable state. true enables the capture while false disables it.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBCaptureKeyboard(boolean enable) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBCaptureKeyboard(final boolean enable) {
         return Hresult.getFromApiValue(lib.RzSBCaptureKeyboard(enable));
     }
 
@@ -1098,7 +1122,9 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBKeyboardCaptureSetCallback(KeyboardCallbackInterface callback) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBKeyboardCaptureSetCallback(final KeyboardCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBKeyboardCaptureSetCallback(callback));
     }
 
@@ -1107,66 +1133,76 @@ public class RazerAPI {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
-    public Hresult RzSBGestureSetCallback(TouchpadGestureCallbackInterface callback) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBGestureSetCallback(final TouchpadGestureCallbackInterface callback) {
         return Hresult.getFromApiValue(lib.RzSBGestureSetCallback(callback));
     }
 
     /**
      * Enables or disables gesture events.
      * In nearly all cases, gestural events are preceded by a
-     * {@link RazerAPI.GestureType#PRESS} event.
+     * {@link GestureType#PRESS} event.
      * With multiple finger gestures, the first finger contact registers as a press,
      * and the touchpad reports subsequent contacts as the appropriate compound gesture (tap, flick, zoom or rotate).
      * @param gestureType GestureType to be enabled or disabled.
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
-    public Hresult RzSBEnableGesture(GestureType gestureType, boolean enable) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBEnableGesture(final GestureType gestureType, final boolean enable) {
         return RzSBEnableGesture(EnumSet.of(gestureType), enable);
     }
 
     /**
      * Enables or disables gesture events.
      * In nearly all cases, gestural events are preceded by a
-     * {@link RazerAPI.GestureType#PRESS} event.
+     * {@link GestureType#PRESS} event.
      * With multiple finger gestures, the first finger contact registers as a press,
      * and the touchpad reports subsequent contacts as the appropriate compound gesture (tap, flick, zoom or rotate).
      * @param gestureType Set of GestureType to be enabled or disabled.
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
-    public Hresult RzSBEnableGesture(EnumSet<GestureType> gestureType, boolean enable) {
-        int intVal = GestureType.convertToInteger(gestureType);
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBEnableGesture(final EnumSet<GestureType> gestureType, final boolean enable) {
+        final int intVal = GestureType.convertToInteger(gestureType);
         log.debug(String.format("Calling RzSBEnableGesture %s with gesture 0x%X", enable, intVal));
         return Hresult.getFromApiValue(lib.RzSBEnableGesture(intVal, enable));
     }
 
     /**
      * Enables or disables gesture event forwarding to the OS.
-     * Setting the {@link RazerAPI.GestureType#PRESS} for OS gesture is equivalent to
-     * {@link RazerAPI.GestureType#PRESS},
-     * {@link RazerAPI.GestureType#MOVE} and
-     * {@link RazerAPI.GestureType#RELEASE}.
+     * Setting the {@link GestureType#PRESS} for OS gesture is equivalent to
+     * {@link GestureType#PRESS},
+     * {@link GestureType#MOVE} and
+     * {@link GestureType#RELEASE}.
      * @param gestureType GestureType to be enabled or disabled.
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
-    public Hresult RzSBEnableOSGesture(GestureType gestureType, boolean enable) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBEnableOSGesture(final GestureType gestureType, final boolean enable) {
         return RzSBEnableOSGesture(EnumSet.of(gestureType), enable);
     }
 
     /**
      * Enables or disables gesture event forwarding to the OS.
-     * Setting the {@link RazerAPI.GestureType#PRESS} for OS gesture is equivalent to
-     * {@link RazerAPI.GestureType#PRESS},
-     * {@link RazerAPI.GestureType#MOVE} and
-     * {@link RazerAPI.GestureType#RELEASE}.
+     * Setting the {@link GestureType#PRESS} for OS gesture is equivalent to
+     * {@link GestureType#PRESS},
+     * {@link GestureType#MOVE} and
+     * {@link GestureType#RELEASE}.
      * @param gestureType Set of GestureType to be enabled or disabled.
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
-    public Hresult RzSBEnableOSGesture(EnumSet<GestureType> gestureType, boolean enable) {
-        int intVal = GestureType.convertToInteger(gestureType);
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    @APIComponent
+    public Hresult RzSBEnableOSGesture(final EnumSet<GestureType> gestureType, final boolean enable) {
+        final int intVal = GestureType.convertToInteger(gestureType);
         log.debug(String.format("Calling RzSBEnableOSGesture %s with gesture 0x%X", enable, intVal));
         return Hresult.getFromApiValue(lib.RzSBEnableOSGesture(intVal, enable));
     }
@@ -1195,6 +1231,7 @@ public class RazerAPI {
      * Specifies the capabilities of this SwitchBlade device.
      */
     public static class Capabilities extends Structure {
+        @JNAComponent
         public static class ByReference extends Capabilities implements Structure.ByReference { }
 
         /**
@@ -1262,6 +1299,7 @@ public class RazerAPI {
      * Buffer data sent to display when rendering image data.
      */
     public static class BufferParams extends Structure {
+        @JNAComponent
         public static class ByValue extends BufferParams implements Structure.ByValue { }
 
         /**

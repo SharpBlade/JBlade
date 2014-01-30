@@ -92,12 +92,12 @@ public class WinAPI {
 
         private final int val;
 
-        private MessageType(int val) {
+        private MessageType(final int val) {
             this.val = val;
         }
 
-        public static MessageType getFromIntegerValue(int value) {
-            for (MessageType type : MessageType.values())
+        public static MessageType getFromIntegerValue(final int value) {
+            for (final MessageType type : MessageType.values())
                 if (type.getVal() == value)
                     return type;
 
@@ -366,52 +366,52 @@ public class WinAPI {
         /**
          * 0 key.
          */
-        Zero (0x30),
+        ZERO (0x30),
 
         /**
          * 1 key.
          */
-        One (0x31),
+        ONE (0x31),
 
         /**
          * 2 key.
          */
-        Two (0x32),
+        TWO (0x32),
 
         /**
          * 3 key.
          */
-        Three (0x33),
+        THREE (0x33),
 
         /**
          * 4 key.
          */
-        Four (0x34),
+        FOUR (0x34),
 
         /**
          * 5 key.
          */
-        Five (0x35),
+        FIVE (0x35),
 
         /**
          * 6 key.
          */
-        Six (0x36),
+        SIX (0x36),
 
         /**
          * 7 key.
          */
-        Seven (0x37),
+        SEVEN (0x37),
 
         /**
          * 8 key.
          */
-        Eight (0x38),
+        EIGHT (0x38),
 
         /**
          * 9 key.
          */
-        Nine (0x39),
+        NINE (0x39),
 
         /**
          * Undefined.
@@ -1400,12 +1400,12 @@ public class WinAPI {
 
         private final int val;
 
-        private VirtualKey(int val) {
+        private VirtualKey(final int val) {
             this.val = val;
         }
 
-        public static VirtualKey getKeyFromInteger(int value) {
-            for (VirtualKey key : VirtualKey.values())
+        public static VirtualKey getKeyFromInteger(final int value) {
+            for (final VirtualKey key : VirtualKey.values())
                 if (key.getVal() == value)
                     return key;
 
@@ -1440,7 +1440,8 @@ public class WinAPI {
      *           </li>
      *         </ul>
      */
-    public short GetAsyncKeyState(int keyCode) {
+    @SuppressWarnings("InstanceMethodNamingConvention")
+    public short GetAsyncKeyState(final int keyCode) {
         // TODO: Find out if this can replace GetKeyState, for some reason JNA doesn't have GetKeyState
         return user32.GetAsyncKeyState(keyCode);
     }

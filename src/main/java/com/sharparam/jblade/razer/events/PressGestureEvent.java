@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
+
 /**
  * Created on 2014-01-26.
  *
@@ -38,20 +40,23 @@ public class PressGestureEvent {
     private final short x;
     private final short y;
 
-    public PressGestureEvent(int touchpointCount, short x, short y) {
+    public PressGestureEvent(final int touchpointCount, final short x, final short y) {
         this.touchpointCount = touchpointCount;
         this.x = x;
         this.y = y;
     }
 
+    @APIComponent
     public int getTouchpointCount() {
         return touchpointCount;
     }
 
+    @APIComponent
     public short getX() {
         return x;
     }
 
+    @APIComponent
     public short getY() {
         return y;
     }

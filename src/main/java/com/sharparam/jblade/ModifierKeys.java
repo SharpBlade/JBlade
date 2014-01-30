@@ -40,15 +40,5 @@ public enum ModifierKeys {
     SHIFT,
     CONTROL,
     ALT,
-    CAPS_LOCK;
-
-    private int flagValue;
-
-    private ModifierKeys() {
-        flagValue = 1 << this.ordinal();
-    }
-
-    public int getFlagValue() {
-        return flagValue;
-    }
+    CAPS_LOCK
 }

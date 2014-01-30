@@ -28,6 +28,7 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.razer.RazerAPI;
 
 /**
@@ -40,20 +41,23 @@ public class AppEventEvent {
     private final RazerAPI.AppEventMode mode;
     private final int processId;
 
-    public AppEventEvent(RazerAPI.AppEventType type, RazerAPI.AppEventMode mode, int processId) {
+    public AppEventEvent(final RazerAPI.AppEventType type, final RazerAPI.AppEventMode mode, final int processId) {
         this.type = type;
         this.mode = mode;
         this.processId = processId;
     }
 
+    @APIComponent
     public RazerAPI.AppEventType getType() {
         return type;
     }
 
+    @APIComponent
     public RazerAPI.AppEventMode getMode() {
         return mode;
     }
 
+    @APIComponent
     public int getProcessId() {
         return processId;
     }

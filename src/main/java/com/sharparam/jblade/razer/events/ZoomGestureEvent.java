@@ -38,7 +38,7 @@ import com.sharparam.jblade.razer.ZoomDirection;
 public class ZoomGestureEvent {
     private final ZoomDirection direction;
 
-    public ZoomGestureEvent(ZoomDirection direction) {
+    public ZoomGestureEvent(final ZoomDirection direction) {
         this.direction = direction;
     }
 

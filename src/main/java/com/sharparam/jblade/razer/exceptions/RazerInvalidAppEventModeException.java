@@ -36,11 +36,11 @@ package com.sharparam.jblade.razer.exceptions;
 public class RazerInvalidAppEventModeException extends RazerException {
     private static final String MESSAGE_PREFIX = "Invalid app event mode value: ";
 
-    public RazerInvalidAppEventModeException(int value) {
+    public RazerInvalidAppEventModeException(final int value) {
         super(MESSAGE_PREFIX + value);
     }
 
-    public RazerInvalidAppEventModeException(int value, Throwable cause) {
+    public RazerInvalidAppEventModeException(final int value, final Throwable cause) {
         super(MESSAGE_PREFIX + value, cause);
     }
 }
