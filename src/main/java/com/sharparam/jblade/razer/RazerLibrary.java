@@ -36,7 +36,7 @@ import com.sun.jna.WString;
  * Native functions from <code>RzSwitchbladeSDK2.dll</code>, all functions are <code>__cdecl</code> calls.
  * @author Sharparam
  */
-public interface RazerLibrary extends Library {
+interface RazerLibrary extends Library {
     /**
      * Grants access to the Switchblade device, establishing application connections.
      * This method sets up the connections that allow an application to access the Switchblade hardware device.

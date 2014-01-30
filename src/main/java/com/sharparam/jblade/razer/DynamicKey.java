@@ -195,7 +195,7 @@ public class DynamicKey {
             listener.dynamicKeyReleased(event);
     }
 
-    public void updateState(RazerAPI.DynamicKeyState state) {
+    void updateState(RazerAPI.DynamicKeyState state) {
         previousState = this.state;
         this.state = state;
         onStateChanged();
