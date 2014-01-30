@@ -38,6 +38,8 @@ import com.sun.jna.platform.win32.User32;
 public class WinAPI {
     public static final WinAPI INSTANCE = new WinAPI();
 
+    private final User32 user32;
+
     /**
      * Toggled key (e.g. caps lock).
      * Used with ...
@@ -1416,7 +1418,7 @@ public class WinAPI {
     }
 
     private WinAPI() {
-
+        user32 = User32.INSTANCE;
     }
 
     /**
@@ -1440,6 +1442,6 @@ public class WinAPI {
      */
     public short GetAsyncKeyState(int keyCode) {
         // TODO: Find out if this can replace GetKeyState, for some reason JNA doesn't have GetKeyState
-        return User32.INSTANCE.GetAsyncKeyState(keyCode);
+        return user32.GetAsyncKeyState(keyCode);
     }
 }
