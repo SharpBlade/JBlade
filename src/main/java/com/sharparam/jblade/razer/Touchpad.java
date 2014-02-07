@@ -30,14 +30,18 @@ package com.sharparam.jblade.razer;
 
 import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.annotations.NativeCodeBinding;
+import com.sharparam.jblade.integration.Renderer;
 import com.sharparam.jblade.razer.events.*;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
 import com.sharparam.jblade.razer.listeners.*;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -300,10 +304,39 @@ public class Touchpad {
         setOSGesture(gestureTypes, false);
     }
 
+    // TODO: Test this
     @APIComponent
-    public void drawImage(final BufferedImage image) {
-        // TODO: Implement
-        throw new NotImplementedException();
+    public void drawImage(final BufferedImage image) throws RazerNativeException {
+        if (image.getType() != BufferedImage.TYPE_USHORT_565_RGB)
+            throw new IllegalArgumentException("BufferedImage needs to be of type RGB565");
+
+        final RazerAPI.BufferParams.ByValue params = new RazerAPI.BufferParams.ByValue();
+        params.pixelType = RazerAPI.PixelType.RGB565;
+
+        final int size = image.getWidth() * image.getHeight() * 2; // 2 == size of ushort
+        params.dataSize = new WinDef.UINT(size);
+
+        final int[] data = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, 0);
+
+        //final WinDef.USHORT[] apiData = new WinDef.USHORT[data.length];
+        //for (int i = 0; i < data.length; i++)
+        //    apiData[i] = new WinDef.USHORT(data[i]);
+
+        final Pointer dataPtr = new Memory(data.length);
+        dataPtr.write(0, data, 0, data.length);
+
+        params.ptrData = dataPtr;
+
+        final RazerAPI.Hresult result = razerAPI.RzSBRenderBuffer(RazerAPI.TargetDisplay.WIDGET, params);
+
+        if (result.isError())
+            throw new RazerNativeException("RzSBRenderBuffer", result);
+    }
+
+    @APIComponent
+    public void drawFrame(final JFrame frame) throws RazerNativeException {
+        final BufferedImage image = Renderer.renderComponent(frame);
+        drawImage(image);
     }
 
     @APIComponent
