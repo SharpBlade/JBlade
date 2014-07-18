@@ -33,10 +33,10 @@ import com.sun.jna.WString;
 
 /**
  * Interface for native RazerLibrary functions provided by the Razer SwitchBlade UI SDK.
- * Native functions from <code>RzSwitchbladeSDK2.dll</code>, all functions are <code>__cdecl</code> calls.
+ * Native functions from {@code RzSwitchbladeSDK2.dll}, all functions are {@code __cdecl} calls.
  * @author Sharparam
  */
-public interface RazerLibrary extends Library {
+interface RazerLibrary extends Library {
     /**
      * Grants access to the Switchblade device, establishing application connections.
      * This method sets up the connections that allow an application to access the Switchblade hardware device.
@@ -46,12 +46,12 @@ public interface RazerLibrary extends Library {
      * This method must always be accompanied by an {@link #RzSBStop()}.
      * COM initialization should be called prior to calling this method.
      * If the application developer intends to use Single-Threaded Apartment model (STA) and call the SDK
-     * functions within the same thread where the COM was initialized, then <code>CoInitialize()</code> should be called
+     * functions within the same thread where the COM was initialized, then {@code CoInitialize()} should be called
      * before this method. Note that some MFC controls automatically initializes to STA.
      * If the application developer intends to call the SDK functions on different threads,
-     * then the <code>CoInitializeEx()</code> should be called before this method.
+     * then the {@code CoInitializeEx()} should be called before this method.
      * Note: When this method is called without the COM being initialized
-     * (e.g. thru calling <code>CoInitializeEx</code>)
+     * (e.g. thru calling {@code CoInitializeEx})
      * the SDK initializes the COM to Multi-Threaded Apartment (MTA) model.
      * As such, callers must invoke SDK functions from an MTA thread.
      * Future SDK versions will move these calls into an isolated STA, giving application developers additional
@@ -60,6 +60,7 @@ public interface RazerLibrary extends Library {
      * initialization and calls to avoid the issues for COM in different threading models.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBStart();
 
     /**
@@ -73,6 +74,7 @@ public interface RazerLibrary extends Library {
      * other applications may fail to acquire control of the Switchblade device.
      * In this case, manually kill the framework processes.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     void RzSBStop();
 
     /**
@@ -82,6 +84,7 @@ public interface RazerLibrary extends Library {
      *                     proper information about the SDK and supported hardware.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBQueryCapabilities(RazerAPI.Capabilities.ByReference capabilities);
 
     /**
@@ -90,7 +93,7 @@ public interface RazerLibrary extends Library {
      * display thru this function providing are more direct and faster way of updating the display.
      * Since the function accepts the buffer for bottom-up bitmap,
      * the application should invert the original image along its vertical axis prior to calling the function.
-     * This can be done easily with <code>BitBlit</code> and <code>StretchBlt</code> APIs.
+     * This can be done easily with {@code BitBlit} and {@code StretchBlt} APIs.
      * @param target Specifies the target location on the Switchblade display – the main display or one of the dynamic key areas.
      *               Please refer to the definition for TargetDisplay for accepted values.
      * @param bufferParams A pointer to a buffer parameter structure of type BufferParams that
@@ -99,6 +102,7 @@ public interface RazerLibrary extends Library {
      *                     Please refer to the definition for BufferParams for further detail.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBRenderBuffer(int target, RazerAPI.BufferParams.ByValue bufferParams);
 
     /**
@@ -110,6 +114,7 @@ public interface RazerLibrary extends Library {
      *                 Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBSetImageDynamicKey(RazerAPI.DynamicKeyType dk, RazerAPI.DynamicKeyState state, String filename);
 
     /**
@@ -119,6 +124,7 @@ public interface RazerLibrary extends Library {
      *                 This image should be 800 x 480 pixels in dimension. Accepted file formats are BMP, GIF, JPG, and PNG.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBSetImageTouchpad(WString filename);
 
     /**
@@ -126,6 +132,7 @@ public interface RazerLibrary extends Library {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBAppEventSetCallback(RazerAPI.AppEventCallbackInterface callback);
 
     /**
@@ -133,18 +140,20 @@ public interface RazerLibrary extends Library {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBDynamicKeySetCallback(RazerAPI.DynamicKeyCallbackInterface callback);
 
     /**
      * Enables or disables the keyboard capture functionality.
      * When the capture is enabled, the SDK application can receive keyboard
-     * input events through the callback assigned using <see cref="RzSBKeyboardCaptureSetCallback" />.
+     * input events through the callback assigned using {@link #RzSBKeyboardCaptureSetCallback(RazerAPI.KeyboardCallbackInterface)}.
      * The OS will not receive any keyboard input from the Switchblade device as long as the capture is active.
      * Hence, applications must release the capture when no longer in use (call <see cref="RzSBEnableGesture" /> with false as parameter).
      * The function only affects the keyboard device where the application is running. Other keyboard devices will work normally.
      * @param enable The enable state. true enables the capture while false disables it.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBCaptureKeyboard(boolean enable);
 
     /**
@@ -152,6 +161,7 @@ public interface RazerLibrary extends Library {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBKeyboardCaptureSetCallback(RazerAPI.KeyboardCallbackInterface callback);
 
     /**
@@ -159,6 +169,7 @@ public interface RazerLibrary extends Library {
      * @param callback Pointer to a callback function. If this argument is set to NULL, the routine clears the previously set callback function.
      * @return HRESULT code indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBGestureSetCallback(RazerAPI.TouchpadGestureCallbackInterface callback);
 
     /**
@@ -171,6 +182,7 @@ public interface RazerLibrary extends Library {
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBEnableGesture(int gestureType, boolean enable);
 
     /**
@@ -183,5 +195,6 @@ public interface RazerLibrary extends Library {
      * @param enable The enable state. true enables the gesture while false disables it.
      * @return HRESULT object indicating success or failure.
      */
+    @SuppressWarnings("InstanceMethodNamingConvention")
     int RzSBEnableOSGesture(int gestureType, boolean enable);
 }

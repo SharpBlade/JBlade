@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
+
 /**
  * Created on 2014-01-26.
  *
@@ -37,15 +39,17 @@ public class MoveGestureEvent {
     private final short x;
     private final short y;
 
-    public MoveGestureEvent(short x, short y) {
+    public MoveGestureEvent(final short x, final short y) {
         this.x = x;
         this.y = y;
     }
 
+    @APIComponent
     public short getX() {
         return x;
     }
 
+    @APIComponent
     public short getY() {
         return y;
     }

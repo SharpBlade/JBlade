@@ -39,7 +39,7 @@ public class RazerNativeException extends RazerException {
     private final String function;
     private final RazerAPI.Hresult hresult;
 
-    public RazerNativeException(String function, RazerAPI.Hresult hresult) {
+    public RazerNativeException(final String function, final RazerAPI.Hresult hresult) {
         super(String.format("Call to native RazerAPI function %s failed with error: %s", function, hresult.name()));
 
         this.function = function;
