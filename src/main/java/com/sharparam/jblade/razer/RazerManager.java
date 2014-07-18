@@ -29,11 +29,11 @@
 package com.sharparam.jblade.razer;
 
 import com.sharparam.jblade.ModifierKeys;
+import com.sharparam.jblade.annotations.NativeCodeBinding;
 import com.sharparam.jblade.razer.events.*;
 import com.sharparam.jblade.razer.exceptions.RazerDynamicKeyException;
 import com.sharparam.jblade.razer.exceptions.RazerInvalidAppEventModeException;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
-import com.sharparam.jblade.razer.exceptions.RazerUnstableShutdownException;
 import com.sharparam.jblade.razer.listeners.*;
 import com.sharparam.jblade.windows.WinAPI;
 import com.sun.jna.platform.win32.WinDef;
@@ -55,8 +55,13 @@ public class RazerManager {
 
     private final RazerAPI razerAPI;
 
+    @NativeCodeBinding
     private static RazerAPI.AppEventCallbackInterface appEventCallback;
+
+    @NativeCodeBinding
     private static RazerAPI.DynamicKeyCallbackInterface dkCallback;
+
+    @NativeCodeBinding
     private static RazerAPI.KeyboardCallbackInterface keyboardCallback;
 
     private final List<AppEventListener> appEventListeners;
@@ -65,9 +70,9 @@ public class RazerManager {
     private final List<KeyboardKeyListener> keyboardKeyListeners;
     private final List<KeyboardCharListener> keyboardCharListeners;
 
-    private DynamicKey[] dynamicKeys;
+    private final DynamicKey[] dynamicKeys;
 
-    private Touchpad touchpad;
+    private final Touchpad touchpad;
 
     private boolean keyboardCapture;
 
@@ -75,7 +80,7 @@ public class RazerManager {
      * Initializes a new instance of the RazerManager class.
      * @throws RazerNativeException Thrown if any native call fails during initialization.
      */
-    private RazerManager() throws RazerUnstableShutdownException, RazerNativeException {
+    private RazerManager() throws RazerNativeException {
         log = LogManager.getLogger();
 
         log.info("RazerManager is initializing");
@@ -87,10 +92,10 @@ public class RazerManager {
         log.debug("Calling RzSBStart()");
 
         RazerAPI.Hresult result = razerAPI.RzSBStart();
-        if (result.failed()) {
+        if (result.isError()) {
             // Try one more time
             result = razerAPI.RzSBStart();
-            if (result.failed())
+            if (result.isError())
                 throw new RazerNativeException("RzSBStart", result);
         }
 
@@ -98,13 +103,13 @@ public class RazerManager {
 
         appEventCallback = new RazerAPI.AppEventCallbackInterface() {
             @Override
-            public int callback(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
+            public int callback(final int appEventType, final WinDef.UINT dwAppMode, final WinDef.UINT dwProcessID) {
                 return appEventCallbackFunction(appEventType, dwAppMode, dwProcessID);
             }
         };
 
         result = razerAPI.RzSBAppEventSetCallback(appEventCallback);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBAppEventSetCallback", result);
 
         log.info("Setting up touchpad");
@@ -118,26 +123,26 @@ public class RazerManager {
 
         dkCallback = new RazerAPI.DynamicKeyCallbackInterface() {
             @Override
-            public int callback(int dynamicKeyType, int dynamicKeyState) {
+            public int callback(final int dynamicKeyType, final int dynamicKeyState) {
                 return dynamicKeyCallbackFunction(dynamicKeyType, dynamicKeyState);
             }
         };
 
         result = razerAPI.RzSBDynamicKeySetCallback(dkCallback);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBDynamicKeySetCallback", result);
 
         log.debug("Registering keyboard callback");
 
         keyboardCallback = new RazerAPI.KeyboardCallbackInterface() {
             @Override
-            public int callback(WinDef.UINT uMsg, WinDef.UINT_PTR wParam, WinDef.INT_PTR lParam) {
+            public int callback(final WinDef.UINT uMsg, final WinDef.UINT_PTR wParam, final WinDef.INT_PTR lParam) {
                 return keyboardCallbackFunction(uMsg, wParam, lParam);
             }
         };
 
         result = razerAPI.RzSBKeyboardCaptureSetCallback(keyboardCallback);
-        if (result.failed())
+        if (result.isError())
             throw new RazerNativeException("RzSBKeyboardCaptureSetCallback", result);
 
         log.debug("Initializing dynamic key array");
@@ -159,7 +164,7 @@ public class RazerManager {
         keyboardCharListeners = new ArrayList<KeyboardCharListener>();
     }
 
-    public static RazerManager getInstance() throws RazerUnstableShutdownException, RazerNativeException {
+    public static RazerManager getInstance() throws RazerNativeException {
         if (instance == null)
             instance = new RazerManager();
 
@@ -178,7 +183,7 @@ public class RazerManager {
      * Gets a boolean value indicating whether keyboard capture is currently enabled.
      * @return A boolean value indicating whether keyboard capture is enabled.
      */
-    public boolean getKeyboardCapture() {
+    public boolean isKeyboardCaptureEnabled() {
         return keyboardCapture;
     }
 
@@ -188,13 +193,13 @@ public class RazerManager {
         log.info("RazerManager has stopped.");
     }
 
-    public DynamicKey getDynamicKey(RazerAPI.DynamicKeyType keyType) {
+    public DynamicKey getDynamicKey(final RazerAPI.DynamicKeyType keyType) {
         return dynamicKeys[keyType.ordinal() - 1];
     }
 
-    public DynamicKey enableDynamicKey(RazerAPI.DynamicKeyType type, DynamicKeyListener listener,
-                                       String image, String pressedImage, boolean replace) throws RazerDynamicKeyException {
-        int index = type.ordinal() - 1;
+    public DynamicKey enableDynamicKey(final RazerAPI.DynamicKeyType type, final DynamicKeyListener listener,
+                                       final String image, final String pressedImage, final boolean replace) throws RazerDynamicKeyException {
+        final int index = type.ordinal() - 1;
 
         if (dynamicKeys[index] != null && !replace) {
             log.info("Dynamic key {} already enabled and replace is false", type);
@@ -206,9 +211,9 @@ public class RazerManager {
 
         try {
             log.debug("Creating new DynamicKey object");
-            DynamicKey dk = new DynamicKey(type, image, pressedImage, listener);
+            final DynamicKey dk = new DynamicKey(type, image, pressedImage, listener);
             dynamicKeys[index] = dk;
-        } catch (RazerNativeException ex) {
+        } catch (final RazerNativeException ex) {
             log.error("Failed to enable dynamic key {}: {}", type, ex.getHresult().name());
             throw new RazerDynamicKeyException(String.format("Failed to enable dynamic key %s due to a native call exception.", type), ex);
         }
@@ -216,163 +221,163 @@ public class RazerManager {
         return dynamicKeys[index];
     }
 
-    public void disableDynamicKey(RazerAPI.DynamicKeyType type) {
-        int index = type.ordinal() - 1;
-        DynamicKey dk = dynamicKeys[index];
+    public void disableDynamicKey(final RazerAPI.DynamicKeyType type) {
+        final int index = type.ordinal() - 1;
+        final DynamicKey dk = dynamicKeys[index];
         if (dk != null)
             dk.disable();
         dynamicKeys[index] = null;
     }
 
-    public void setKeyboardCapture(boolean enabled) throws RazerNativeException {
+    public void setKeyboardCapture(final boolean enabled) throws RazerNativeException {
         if (enabled == keyboardCapture)
             return;
 
-        RazerAPI.Hresult result = razerAPI.RzSBCaptureKeyboard(enabled);
-        if (result.failed())
+        final RazerAPI.Hresult result = razerAPI.RzSBCaptureKeyboard(enabled);
+        if (result.isError())
             throw new RazerNativeException("RzSBCaptureKeyboard", result);
 
         keyboardCapture = enabled;
     }
 
-    public void addAppEventListener(AppEventListener listener) {
+    public void addAppEventListener(final AppEventListener listener) {
         appEventListeners.add(listener);
     }
 
-    public void removeAppEventListener(AppEventListener listener) {
+    public void removeAppEventListener(final AppEventListener listener) {
         if (appEventListeners.contains(listener))
             appEventListeners.remove(listener);
     }
 
-    private void onAppEvent(RazerAPI.AppEventType type, RazerAPI.AppEventMode mode, int processId) {
+    private void onAppEvent(final RazerAPI.AppEventType type, final RazerAPI.AppEventMode mode, final int processId) {
         if (appEventListeners.isEmpty())
             return;
 
-        AppEventEvent event = new AppEventEvent(type, mode, processId);
-        for (AppEventListener listener : appEventListeners)
+        final AppEventEvent event = new AppEventEvent(type, mode, processId);
+        for (final AppEventListener listener : appEventListeners)
             listener.appEventRaised(event);
     }
 
-    public void addDynamicKeyListener(DynamicKeyListener listener) {
+    public void addDynamicKeyListener(final DynamicKeyListener listener) {
         dynamicKeyListeners.add(listener);
     }
 
-    public void removeDynamicKeyListener(DynamicKeyListener listener) {
+    public void removeDynamicKeyListener(final DynamicKeyListener listener) {
         if (dynamicKeyListeners.contains(listener))
             dynamicKeyListeners.remove(listener);
     }
 
-    private void onDynamicKeyStateChanged(DynamicKey dk) {
+    private void onDynamicKeyStateChanged(final DynamicKey dk) {
         if (dynamicKeyListeners.isEmpty())
             return;
 
-        DynamicKeyEvent event = new DynamicKeyEvent(dk.getKeyType(), dk.getState());
-        for (DynamicKeyListener listener : dynamicKeyListeners)
+        final DynamicKeyEvent event = new DynamicKeyEvent(dk.getKeyType(), dk.getState());
+        for (final DynamicKeyListener listener : dynamicKeyListeners)
             listener.dynamicKeyStateChanged(event);
     }
 
-    private void onDynamicKeyPressed(DynamicKey dk) {
+    private void onDynamicKeyPressed(final DynamicKey dk) {
         if (dynamicKeyListeners.isEmpty())
             return;
 
-        DynamicKeyEvent event = new DynamicKeyEvent(dk.getKeyType(), dk.getState());
-        for (DynamicKeyListener listener : dynamicKeyListeners)
+        final DynamicKeyEvent event = new DynamicKeyEvent(dk.getKeyType(), dk.getState());
+        for (final DynamicKeyListener listener : dynamicKeyListeners)
             listener.dynamicKeyPressed(event);
     }
 
-    private void onDynamicKeyReleased(DynamicKey dk) {
+    private void onDynamicKeyReleased(final DynamicKey dk) {
         if (dynamicKeyListeners.isEmpty())
             return;
 
-        DynamicKeyEvent event = new DynamicKeyEvent(dk.getKeyType(), dk.getState());
-        for (DynamicKeyListener listener : dynamicKeyListeners)
+        final DynamicKeyEvent event = new DynamicKeyEvent(dk.getKeyType(), dk.getState());
+        for (final DynamicKeyListener listener : dynamicKeyListeners)
             listener.dynamicKeyReleased(event);
     }
 
-    public void addKeyboardRawListener(KeyboardRawListener listener) {
+    public void addKeyboardRawListener(final KeyboardRawListener listener) {
         keyboardRawListeners.add(listener);
     }
 
-    public void removeKeyboardRawListener(KeyboardRawListener listener) {
+    public void removeKeyboardRawListener(final KeyboardRawListener listener) {
         if (keyboardRawListeners.contains(listener))
             keyboardRawListeners.remove(listener);
     }
 
-    private void onKeyboardRawEvent(int type, int data, int modifiers) {
+    private void onKeyboardRawEvent(final int type, final int data, final int modifiers) {
         if (keyboardRawListeners.isEmpty())
             return;
 
-        KeyboardRawEvent event = new KeyboardRawEvent(type, data, modifiers);
-        for (KeyboardRawListener listener : keyboardRawListeners)
+        final KeyboardRawEvent event = new KeyboardRawEvent(type, data, modifiers);
+        for (final KeyboardRawListener listener : keyboardRawListeners)
             listener.keyboardRawInput(event);
     }
 
-    public void addKeyboardKeyListener(KeyboardKeyListener listener) {
+    public void addKeyboardKeyListener(final KeyboardKeyListener listener) {
         keyboardKeyListeners.add(listener);
     }
 
-    public void removeKeyboardKeyListener(KeyboardKeyListener listener) {
+    public void removeKeyboardKeyListener(final KeyboardKeyListener listener) {
         if (keyboardKeyListeners.contains(listener))
             keyboardKeyListeners.remove(listener);
     }
 
-    private void onKeyboardKeyPressed(WinAPI.VirtualKey key, EnumSet<ModifierKeys> modifiers) {
+    private void onKeyboardKeyPressed(final WinAPI.VirtualKey key, final EnumSet<ModifierKeys> modifiers) {
         if (keyboardKeyListeners.isEmpty())
             return;
 
-        KeyboardKeyEvent event = new KeyboardKeyEvent(key, modifiers);
-        for (KeyboardKeyListener listener : keyboardKeyListeners)
+        final KeyboardKeyEvent event = new KeyboardKeyEvent(key, modifiers);
+        for (final KeyboardKeyListener listener : keyboardKeyListeners)
             listener.keyboardKeyPressed(event);
     }
 
-    private void onKeyboardKeyReleased(WinAPI.VirtualKey key, EnumSet<ModifierKeys> modifiers) {
+    private void onKeyboardKeyReleased(final WinAPI.VirtualKey key, final EnumSet<ModifierKeys> modifiers) {
         if (keyboardKeyListeners.isEmpty())
             return;
 
-        KeyboardKeyEvent event = new KeyboardKeyEvent(key, modifiers);
-        for (KeyboardKeyListener listener : keyboardKeyListeners)
+        final KeyboardKeyEvent event = new KeyboardKeyEvent(key, modifiers);
+        for (final KeyboardKeyListener listener : keyboardKeyListeners)
             listener.keyboardKeyReleased(event);
     }
 
-    public void addKeyboardCharListener(KeyboardCharListener listener) {
+    public void addKeyboardCharListener(final KeyboardCharListener listener) {
         keyboardCharListeners.add(listener);
     }
 
-    public void removeKeyboardCharListener(KeyboardCharListener listener) {
+    public void removeKeyboardCharListener(final KeyboardCharListener listener) {
         if (keyboardCharListeners.contains(listener))
             keyboardCharListeners.remove(listener);
     }
 
-    private void onKeyboardCharTyped(char c) {
+    private void onKeyboardCharTyped(final char c) {
         if (keyboardCharListeners.isEmpty())
             return;
 
-        KeyboardCharEvent event = new KeyboardCharEvent(c);
-        for (KeyboardCharListener listener : keyboardCharListeners)
+        final KeyboardCharEvent event = new KeyboardCharEvent(c);
+        for (final KeyboardCharListener listener : keyboardCharListeners)
             listener.keyboardCharTyped(event);
     }
 
     // App event handler
-    private int appEventCallbackFunction(int appEventType, WinDef.UINT dwAppMode, WinDef.UINT dwProcessID) {
-        RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
+    private int appEventCallbackFunction(final int appEventType, final WinDef.UINT dwAppMode, final WinDef.UINT dwProcessID) {
+        final RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
-        RazerAPI.AppEventType eventType = RazerAPI.AppEventType.values()[appEventType];
+        final RazerAPI.AppEventType eventType = RazerAPI.AppEventType.values()[appEventType];
 
         if (eventType == RazerAPI.AppEventType.INVALID || eventType == RazerAPI.AppEventType.NONE) {
             log.debug("Unsupported AppEventType: {}", appEventType);
             return result.getVal();
         }
 
-        RazerAPI.AppEventMode appEventMode;
+        final RazerAPI.AppEventMode appEventMode;
 
         try {
             appEventMode = RazerAPI.AppEventMode.getAppEventModeFromApiValue(dwAppMode.intValue());
-        } catch (RazerInvalidAppEventModeException ex) {
+        } catch (final RazerInvalidAppEventModeException ex) {
             log.error("Problem parsing app event mode", ex);
             return result.getVal(); // Should we return an error value?
         }
 
-        int processId = dwProcessID.intValue();
+        final int processId = dwProcessID.intValue();
 
         onAppEvent(eventType, appEventMode, processId);
 
@@ -380,14 +385,14 @@ public class RazerManager {
     }
 
     // Dynamic key event handler
-    private int dynamicKeyCallbackFunction(int dynamicKeyType, int dynamicKeyState) {
-        RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
+    private int dynamicKeyCallbackFunction(final int dynamicKeyType, final int dynamicKeyState) {
+        final RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
-        RazerAPI.DynamicKeyType dkType = RazerAPI.DynamicKeyType.values()[dynamicKeyType];
-        RazerAPI.DynamicKeyState state = RazerAPI.DynamicKeyState.values()[dynamicKeyState];
+        final RazerAPI.DynamicKeyType dkType = RazerAPI.DynamicKeyType.values()[dynamicKeyType];
+        final RazerAPI.DynamicKeyState state = RazerAPI.DynamicKeyState.values()[dynamicKeyState];
 
-        int index = dkType.ordinal() - 1;
-        DynamicKey dk = dynamicKeys[index];
+        final int index = dkType.ordinal() - 1;
+        final DynamicKey dk = dynamicKeys[index];
         if (dk == null) {
             log.debug("Key {} has not been registered by app", dkType);
             return result.getVal();
@@ -413,26 +418,26 @@ public class RazerManager {
     }
 
     // Keyboard event handler
-    private int keyboardCallbackFunction(WinDef.UINT type, WinDef.UINT_PTR data, WinDef.INT_PTR modifiers) {
-        RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
+    private int keyboardCallbackFunction(final WinDef.UINT type, final WinDef.UINT_PTR data, final WinDef.INT_PTR modifiers) {
+        final RazerAPI.Hresult result = RazerAPI.Hresult.RZSB_OK;
 
-        char asChar = (char) data.intValue();
+        final char asChar = (char) data.intValue();
 
-        int typeVal = type.intValue();
-        int dataVal = data.intValue();
-        int modVal = modifiers.intValue();
+        final int typeVal = type.intValue();
+        final int dataVal = data.intValue();
+        final int modVal = modifiers.intValue();
 
         onKeyboardRawEvent(typeVal, dataVal, modVal);
 
-        WinAPI.MessageType msgType = WinAPI.MessageType.getFromIntegerValue(typeVal);
+        final WinAPI.MessageType msgType = WinAPI.MessageType.getFromIntegerValue(typeVal);
 
         if (msgType == WinAPI.MessageType.CHAR && !Character.isISOControl(asChar)) {
             onKeyboardCharTyped(asChar);
         } else if (msgType == WinAPI.MessageType.KEYDOWN || msgType == WinAPI.MessageType.KEYUP) {
-            WinAPI.VirtualKey key = WinAPI.VirtualKey.getKeyFromInteger(dataVal);
-            EnumSet<ModifierKeys> modKeys = EnumSet.noneOf(ModifierKeys.class);
+            final WinAPI.VirtualKey key = WinAPI.VirtualKey.getKeyFromInteger(dataVal);
+            final EnumSet<ModifierKeys> modKeys = EnumSet.noneOf(ModifierKeys.class);
 
-            WinAPI winAPI = WinAPI.INSTANCE;
+            final WinAPI winAPI = WinAPI.INSTANCE;
 
             if ((winAPI.GetAsyncKeyState(WinAPI.VirtualKey.SHIFT.getVal()) & WinAPI.KEY_PRESSED) != 0)
                 modKeys.add(ModifierKeys.SHIFT);

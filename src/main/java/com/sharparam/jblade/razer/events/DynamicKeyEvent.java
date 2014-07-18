@@ -28,6 +28,7 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.razer.RazerAPI;
 
 /**
@@ -39,15 +40,17 @@ public class DynamicKeyEvent {
     private final RazerAPI.DynamicKeyType keyType;
     private final RazerAPI.DynamicKeyState state;
 
-    public DynamicKeyEvent(RazerAPI.DynamicKeyType keyType, RazerAPI.DynamicKeyState state) {
+    public DynamicKeyEvent(final RazerAPI.DynamicKeyType keyType, final RazerAPI.DynamicKeyState state) {
         this.keyType = keyType;
         this.state = state;
     }
 
+    @APIComponent
     public RazerAPI.DynamicKeyType getKeyType() {
         return keyType;
     }
 
+    @APIComponent
     public RazerAPI.DynamicKeyState getState() {
         return state;
     }

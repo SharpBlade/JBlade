@@ -34,15 +34,11 @@ package com.sharparam.jblade.razer.exceptions;
  * @author Sharparam
  */
 public class RazerException extends Exception {
-    public RazerException() {
-        super();
-    }
-
-    public RazerException(String message) {
+    RazerException(final String message) {
         super(message);
     }
 
-    public RazerException(String message, Throwable cause) {
+    RazerException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

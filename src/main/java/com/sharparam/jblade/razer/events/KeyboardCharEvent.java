@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
+
 /**
  * Created on 2014-01-26.
  *
@@ -36,10 +38,11 @@ package com.sharparam.jblade.razer.events;
 public class KeyboardCharEvent {
     private final char character;
 
-    public KeyboardCharEvent(char character) {
+    public KeyboardCharEvent(final char character) {
         this.character = character;
     }
 
+    @APIComponent
     public char getCharacter() {
         return character;
     }

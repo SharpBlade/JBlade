@@ -28,6 +28,7 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.razer.RazerAPI;
 
 /**
@@ -42,7 +43,8 @@ public class GestureEvent {
     private final short y;
     private final short z;
 
-    public GestureEvent(RazerAPI.GestureType type, int parameter, short x, short y, short z) {
+    public GestureEvent(final RazerAPI.GestureType type, final int parameter,
+                        final short x, final short y, final short z) {
         this.type = type;
         this.parameter = parameter;
         this.x = x;
@@ -50,22 +52,27 @@ public class GestureEvent {
         this.z = z;
     }
 
+    @APIComponent
     public RazerAPI.GestureType getType() {
         return type;
     }
 
+    @APIComponent
     public int getParameter() {
         return parameter;
     }
 
+    @APIComponent
     public short getX() {
         return x;
     }
 
+    @APIComponent
     public short getY() {
         return y;
     }
 
+    @APIComponent
     public short getZ() {
         return z;
     }

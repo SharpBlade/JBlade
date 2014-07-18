@@ -45,6 +45,7 @@ public class DynamicKey {
     private final Logger log;
 
     private final List<DynamicKeyListener> listeners;
+    private final RazerAPI.DynamicKeyType keyType;
 
     private RazerAPI.DynamicKeyState state;
     private RazerAPI.DynamicKeyState previousState;
@@ -52,17 +53,8 @@ public class DynamicKey {
     private String upImage;
     private String downImage;
 
-    private RazerAPI.DynamicKeyType keyType;
-
-    public DynamicKey(RazerAPI.DynamicKeyType keyType, String image) throws RazerNativeException {
-        this(keyType, image, null);
-    }
-
-    public DynamicKey(RazerAPI.DynamicKeyType keyType, String image, String pressedImage) throws RazerNativeException {
-        this(keyType, image, pressedImage, null);
-    }
-
-    public DynamicKey(RazerAPI.DynamicKeyType keyType, String image, String pressedImage, DynamicKeyListener listener) throws RazerNativeException {
+    DynamicKey(final RazerAPI.DynamicKeyType keyType, final String image, String pressedImage,
+                      final DynamicKeyListener listener) throws RazerNativeException {
         log = LogManager.getLogger();
 
         if (image == null || image.isEmpty())
@@ -76,8 +68,8 @@ public class DynamicKey {
         log.debug("Setting default states");
         state = RazerAPI.DynamicKeyState.NONE;
         previousState = RazerAPI.DynamicKeyState.NONE;
-        this.upImage = image;
-        this.downImage = pressedImage;
+        upImage = image;
+        downImage = pressedImage;
         this.keyType = keyType;
 
         log.debug("Setting images");
@@ -117,24 +109,24 @@ public class DynamicKey {
         return previousState;
     }
 
-    public void setImage(String image) throws RazerNativeException {
+    public void setImage(final String image) throws RazerNativeException {
         setUpImage(image);
         setDownImage(image);
     }
 
-    public void setImages(String image, String pressedImage) throws RazerNativeException {
+    public void setImages(final String image, final String pressedImage) throws RazerNativeException {
         setUpImage(image);
         setDownImage(pressedImage);
     }
 
-    public void setImage(String image, RazerAPI.DynamicKeyState state) throws RazerNativeException {
+    public void setImage(final String image, final RazerAPI.DynamicKeyState state) throws RazerNativeException {
         if (state != RazerAPI.DynamicKeyState.UP && state != RazerAPI.DynamicKeyState.DOWN)
             throw new IllegalArgumentException("State can only be up or down");
 
         log.debug("Setting {} on {} to {}", state, keyType, image);
 
-        RazerAPI.Hresult result = RazerAPI.INSTANCE.RzSBSetImageDynamicKey(keyType, state, image);
-        if (result.failed())
+        final RazerAPI.Hresult result = RazerAPI.INSTANCE.RzSBSetImageDynamicKey(keyType, state, image);
+        if (result.isError())
             throw new RazerNativeException("RzSBSetImageDynamicKey", result);
 
         if (state == RazerAPI.DynamicKeyState.UP)
@@ -143,11 +135,11 @@ public class DynamicKey {
             downImage = image;
     }
 
-    public void setUpImage(String image) throws RazerNativeException {
+    public void setUpImage(final String image) throws RazerNativeException {
         setImage(image, RazerAPI.DynamicKeyState.UP);
     }
 
-    public void setDownImage(String image) throws RazerNativeException {
+    public void setDownImage(final String image) throws RazerNativeException {
         setImage(image, RazerAPI.DynamicKeyState.DOWN);
     }
 
@@ -159,11 +151,11 @@ public class DynamicKey {
         // TODO: Set a black image
     }
 
-    public void addListener(DynamicKeyListener listener) {
+    public void addListener(final DynamicKeyListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(DynamicKeyListener listener) {
+    public void removeListener(final DynamicKeyListener listener) {
         if (listeners.contains(listener))
             listeners.remove(listener);
     }
@@ -172,8 +164,8 @@ public class DynamicKey {
         if (listeners.isEmpty())
             return;
 
-        DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
-        for (DynamicKeyListener listener : listeners)
+        final DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
+        for (final DynamicKeyListener listener : listeners)
             listener.dynamicKeyStateChanged(event);
     }
 
@@ -181,8 +173,8 @@ public class DynamicKey {
         if (listeners.isEmpty())
             return;
 
-        DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
-        for (DynamicKeyListener listener : listeners)
+        final DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
+        for (final DynamicKeyListener listener : listeners)
             listener.dynamicKeyPressed(event);
     }
 
@@ -190,12 +182,12 @@ public class DynamicKey {
         if (listeners.isEmpty())
             return;
 
-        DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
-        for (DynamicKeyListener listener : listeners)
+        final DynamicKeyEvent event = new DynamicKeyEvent(keyType, state);
+        for (final DynamicKeyListener listener : listeners)
             listener.dynamicKeyReleased(event);
     }
 
-    public void updateState(RazerAPI.DynamicKeyState state) {
+    void updateState(final RazerAPI.DynamicKeyState state) {
         previousState = this.state;
         this.state = state;
         onStateChanged();

@@ -28,6 +28,8 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
+
 /**
  * Created on 2014-01-26.
  *
@@ -38,20 +40,23 @@ public class KeyboardRawEvent {
     private final int data;
     private final int modifiers;
 
-    public KeyboardRawEvent(int type, int data, int modifiers) {
+    public KeyboardRawEvent(final int type, final int data, final int modifiers) {
         this.type = type;
         this.data = data;
         this.modifiers = modifiers;
     }
 
+    @APIComponent
     public int getType() {
         return type;
     }
 
+    @APIComponent
     public int getData() {
         return data;
     }
 
+    @APIComponent
     public int getModifiers() {
         return modifiers;
     }

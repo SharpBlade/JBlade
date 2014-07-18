@@ -29,6 +29,7 @@
 package com.sharparam.jblade.razer.events;
 
 import com.sharparam.jblade.ModifierKeys;
+import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.windows.WinAPI;
 
 import java.util.EnumSet;
@@ -42,31 +43,37 @@ public class KeyboardKeyEvent {
     private final WinAPI.VirtualKey key;
     private final EnumSet<ModifierKeys> modifiers;
 
-    public KeyboardKeyEvent(WinAPI.VirtualKey key, EnumSet<ModifierKeys> modifiers) {
+    public KeyboardKeyEvent(final WinAPI.VirtualKey key, final EnumSet<ModifierKeys> modifiers) {
         this.key = key;
         this.modifiers = modifiers;
     }
 
+    @APIComponent
     public WinAPI.VirtualKey getKey() {
         return key;
     }
 
+    @APIComponent
     public EnumSet<ModifierKeys> getModifiers() {
         return modifiers;
     }
 
+    @APIComponent
     public boolean isShiftPressed() {
         return modifiers.contains(ModifierKeys.SHIFT);
     }
 
+    @APIComponent
     public boolean isControlPressed() {
         return modifiers.contains(ModifierKeys.CONTROL);
     }
 
+    @APIComponent
     public boolean isAltPressed() {
         return modifiers.contains(ModifierKeys.ALT);
     }
 
+    @APIComponent
     public boolean isCapsLockActive() {
         return modifiers.contains(ModifierKeys.CAPS_LOCK);
     }

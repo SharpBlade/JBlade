@@ -28,6 +28,7 @@
 
 package com.sharparam.jblade.razer.events;
 
+import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.razer.RazerAPI;
 
 /**
@@ -39,15 +40,17 @@ public class FlickGestureEvent {
     private final int touchpointCount;
     private final RazerAPI.Direction direction;
 
-    public FlickGestureEvent(int touchpointCount, RazerAPI.Direction direction) {
+    public FlickGestureEvent(final int touchpointCount, final RazerAPI.Direction direction) {
         this.touchpointCount = touchpointCount;
         this.direction = direction;
     }
 
+    @APIComponent
     public int getTouchpointCount() {
         return touchpointCount;
     }
 
+    @APIComponent
     public RazerAPI.Direction getDirection() {
         return direction;
     }

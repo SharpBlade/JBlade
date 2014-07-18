@@ -34,15 +34,11 @@ package com.sharparam.jblade.razer.exceptions;
  * @author Sharparam
  */
 public class RazerDynamicKeyException extends RazerException {
-    public RazerDynamicKeyException() {
-        super();
-    }
-
-    public RazerDynamicKeyException(String message) {
+    public RazerDynamicKeyException(final String message) {
         super(message);
     }
 
-    public RazerDynamicKeyException(String message, Throwable cause) {
+    public RazerDynamicKeyException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
