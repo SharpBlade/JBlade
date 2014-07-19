@@ -484,34 +484,10 @@ public class Touchpad {
                 onFlickGesture(parameters, flickDirection);
                 break;
             case ZOOM:
-                final ZoomDirection zoomDirection;
-                switch (parameters) {
-                    case 1:
-                        zoomDirection = ZoomDirection.IN;
-                        break;
-                    case 2:
-                        zoomDirection = ZoomDirection.OUT;
-                        break;
-                    default:
-                        zoomDirection = ZoomDirection.INVALID;
-                        break;
-                }
-                onZoomGesture(zoomDirection);
+                onZoomGesture(ZoomDirection.getFromApiValue(parameters));
                 break;
             case ROTATE:
-                final RotateDirection rotateDirection;
-                switch (parameters) {
-                    case 1:
-                        rotateDirection = RotateDirection.CLOCKWISE;
-                        break;
-                    case 2:
-                        rotateDirection = RotateDirection.COUNTER_CLOCKWISE;
-                        break;
-                    default:
-                        rotateDirection = RotateDirection.INVALID;
-                        break;
-                }
-                onRotateGesture(rotateDirection);
+                onRotateGesture(RotateDirection.getFromApiValue(parameters));
                 break;
             case MOVE:
                 onMoveGesture(x, y);

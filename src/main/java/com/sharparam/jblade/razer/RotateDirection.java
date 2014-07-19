@@ -36,5 +36,16 @@ package com.sharparam.jblade.razer;
 public enum RotateDirection {
     CLOCKWISE,
     COUNTER_CLOCKWISE,
-    INVALID
+    INVALID;
+
+    static RotateDirection getFromApiValue(final int value) {
+        switch (value) {
+            case 1:
+                return CLOCKWISE;
+            case 2:
+                return COUNTER_CLOCKWISE;
+            default:
+                return INVALID;
+        }
+    }
 }
