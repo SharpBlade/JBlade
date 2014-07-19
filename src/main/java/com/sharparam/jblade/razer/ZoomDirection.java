@@ -36,5 +36,16 @@ package com.sharparam.jblade.razer;
 public enum ZoomDirection {
     IN,
     OUT,
-    INVALID
+    INVALID;
+
+    static ZoomDirection getFromApiValue(final int value) {
+        switch (value) {
+            case 1:
+                return IN;
+            case 2:
+                return OUT;
+            default:
+                return INVALID;
+        }
+    }
 }

@@ -299,63 +299,76 @@ public class RazerAPI {
         /**
          * Key #1.
          */
-        DK1,
+        DK1 (TargetDisplay.DK1),
 
         /**
          * Key #2.
          */
-        DK2,
+        DK2 (TargetDisplay.DK2),
 
         /**
          * Key #3.
          */
-        DK3,
+        DK3 (TargetDisplay.DK3),
 
         /**
          * Key #4.
          */
-        DK4,
+        DK4 (TargetDisplay.DK4),
 
         /**
          * Key #5.
          */
-        DK5,
+        DK5 (TargetDisplay.DK5),
 
         /**
          * Key #6.
          */
-        DK6,
+        DK6 (TargetDisplay.DK6),
 
         /**
          * Key #7.
          */
-        DK7,
+        DK7 (TargetDisplay.DK7),
 
         /**
          * Key #8.
          */
-        DK8,
+        DK8 (TargetDisplay.DK8),
 
         /**
          * Key #9.
          */
-        DK9,
+        DK9 (TargetDisplay.DK9),
 
         /**
          * Key #10.
          */
-        DK10,
+        DK10 (TargetDisplay.DK10),
 
         /**
          * Invalid dynamic key.
          */
         INVALID;
 
-
         /**
          * Number of keys available.
          */
         public static final int COUNT = 10;
+
+        private final TargetDisplay targetDisplay;
+
+        private DynamicKeyType() {
+            targetDisplay = null;
+        }
+
+        private DynamicKeyType(TargetDisplay targetDisplay) {
+            this.targetDisplay = targetDisplay;
+        }
+
+        TargetDisplay getTargetDisplay() {
+            return targetDisplay;
+        }
     }
 
     /**
