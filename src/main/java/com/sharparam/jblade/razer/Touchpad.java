@@ -69,20 +69,10 @@ public class Touchpad {
     private final List<TapGestureListener> tapGestureListeners;
     private final List<ZoomGestureListener> zoomGestureListeners;
 
-    private EnumSet<RazerAPI.GestureType> activeGestures;
-    private EnumSet<RazerAPI.GestureType> activeOSGestures;
-
-    private boolean allGesturesEnabled;
-    private boolean allOSGesturesEnabled;
-
     private String currentImage;
 
     private Touchpad() throws RazerNativeException {
         log = LogManager.getLogger();
-
-        log.debug("Initializing active gesture vars");
-        activeGestures = EnumSet.noneOf(RazerAPI.GestureType.class);
-        activeOSGestures = EnumSet.noneOf(RazerAPI.GestureType.class);
 
         log.debug("Getting Razer API instance");
         razerAPI = RazerAPI.INSTANCE;
@@ -140,58 +130,19 @@ public class Touchpad {
 
     @APIComponent
     public void setGesture(final EnumSet<RazerAPI.GestureType> gestureTypes, final boolean enabled) throws RazerNativeException {
-        final EnumSet<RazerAPI.GestureType> newGestures;
+        log.debug("setGesture is %s gestures: %s", enabled ? "enabling" : "disabling", gestureTypes);
 
-        if (gestureTypes.contains(RazerAPI.GestureType.ALL))
-            newGestures = gestureTypes;
-        else if (gestureTypes.isEmpty() || gestureTypes.equals(EnumSet.of(RazerAPI.GestureType.NONE))) {
-            if (activeGestures.isEmpty() || activeGestures.equals(EnumSet.of(RazerAPI.GestureType.NONE))) {
-                log.debug("Active gestures already set to none, aborting");
-                return;
-            }
+        RazerAPI.Hresult result;
 
-            if (!enabled) {
-                // Request to "disable no gesture"
-                // Then just enable all, since that's the same
-                log.debug("Requested to set none disabled, calling set all enabled instead");
-                setGesture(RazerAPI.GestureType.ALL, true);
-                return;
-            }
-
-            newGestures = gestureTypes;
-        } else if (enabled) {
-            if (activeGestures.containsAll(gestureTypes) && !(activeGestures.equals(EnumSet.of(RazerAPI.GestureType.ALL)) && !allGesturesEnabled)) {
-                log.debug("Active gestures already have requested value");
-                log.debug("activeGestures == {}", activeGestures);
-                log.debug("allGesturesEnabled == {}", allGesturesEnabled);
-                return;
-            }
-
-            newGestures = activeGestures.clone();
-            newGestures.addAll(gestureTypes);
-        } else {
-            if (!activeGestures.containsAll(gestureTypes)) {
-                log.debug("Request to disable gesture already disabled: {}", gestureTypes);
-                log.debug("activeGestures == {}", activeGestures);
-                return;
-            }
-
-            newGestures = activeGestures.clone();
-            newGestures.removeAll(gestureTypes);
+        for (final RazerAPI.GestureType gesture : gestureTypes) {
+            result = razerAPI.RzSBEnableGesture(gesture, enabled);
+            if (result.isError())
+                throw new RazerNativeException("RzSBEnableGesture", result);
         }
-
-        RazerAPI.Hresult result = razerAPI.RzSBEnableGesture(newGestures, enabled);
-        if (result.isError())
-            throw new RazerNativeException("RzSBEnableGesture", result);
 
         result = razerAPI.RzSBGestureSetCallback(gestureCallback);
         if (result.isError())
             throw new RazerNativeException("RzSBGestureSetCallback", result);
-
-        activeGestures = newGestures;
-        allGesturesEnabled = (activeGestures.contains(RazerAPI.GestureType.ALL) ||
-                              activeGestures.containsAll(EnumSet.range(RazerAPI.GestureType.PRESS, RazerAPI.GestureType.SCROLL))) &&
-                             enabled;
     }
 
     @APIComponent
@@ -221,60 +172,17 @@ public class Touchpad {
 
     @APIComponent
     public void setOSGesture(final EnumSet<RazerAPI.GestureType> gestureTypes, final boolean enabled) throws RazerNativeException {
-        final EnumSet<RazerAPI.GestureType> newGestures;
+        log.debug("setOSGesture is %s gestures: %s", enabled ? "enabling" : "disabling", gestureTypes);
 
-        if (gestureTypes.contains(RazerAPI.GestureType.ALL))
-            newGestures = gestureTypes;
-        else if (gestureTypes.isEmpty() || gestureTypes.equals(EnumSet.of(RazerAPI.GestureType.NONE))) {
-            if (activeOSGestures.isEmpty() || activeOSGestures.equals(EnumSet.of(RazerAPI.GestureType.NONE))) {
-                log.debug("Active OS gestures already set to none, aborting");
-                return;
-            }
+        for (final RazerAPI.GestureType gesture : gestureTypes) {
+            RazerAPI.Hresult result = razerAPI.RzSBEnableGesture(gesture, enabled);
+            if (result.isError())
+                throw new RazerNativeException("RzSBEnableGesture", result);
 
-            if (!enabled) {
-                // Request to "disable no gesture"
-                // Then just enable all, since that's the same
-                log.debug("Requested to set none disabled, calling set all enabled instead");
-                setOSGesture(RazerAPI.GestureType.ALL, true);
-                return;
-            }
-
-            newGestures = gestureTypes;
-        } else if (enabled) {
-            if (activeOSGestures.containsAll(gestureTypes) &&
-                !(activeOSGestures.equals(EnumSet.of(RazerAPI.GestureType.ALL)) &&
-                  !allOSGesturesEnabled)) {
-                log.debug("Active OS gestures already have requested value");
-                log.debug("activeOSGestures == {}", activeOSGestures);
-                log.debug("allOSGesturesEnabled == {}", allOSGesturesEnabled);
-                return;
-            }
-
-            newGestures = activeOSGestures.clone();
-            newGestures.addAll(gestureTypes);
-        } else {
-            if (!activeOSGestures.containsAll(gestureTypes)) {
-                log.debug("Request to disable gesture already disabled: {}", gestureTypes);
-                log.debug("activeOSGestures == {}", activeOSGestures);
-                return;
-            }
-
-            newGestures = activeOSGestures.clone();
-            newGestures.removeAll(gestureTypes);
+            result = razerAPI.RzSBEnableOSGesture(gesture, enabled);
+            if (result.isError())
+                throw new RazerNativeException("RzSBEnableOSGesture", result);
         }
-
-        RazerAPI.Hresult result = razerAPI.RzSBEnableGesture(newGestures, enabled);
-        if (result.isError())
-            throw new RazerNativeException("RzSBEnableGesture", result);
-
-        result = razerAPI.RzSBEnableOSGesture(newGestures, enabled);
-        if (result.isError())
-            throw new RazerNativeException("RzSBEnableOSGesture", result);
-
-        activeOSGestures = newGestures;
-        allOSGesturesEnabled = (activeOSGestures.contains(RazerAPI.GestureType.ALL) ||
-                activeOSGestures.containsAll(EnumSet.range(RazerAPI.GestureType.PRESS, RazerAPI.GestureType.SCROLL))) &&
-                enabled;
     }
 
     @APIComponent
