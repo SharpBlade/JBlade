@@ -28,6 +28,7 @@
 
 package com.sharparam.jblade.razer;
 
+import com.sharparam.jblade.annotations.APIComponent;
 import com.sharparam.jblade.razer.events.DynamicKeyEvent;
 import com.sharparam.jblade.razer.exceptions.RazerNativeException;
 import com.sharparam.jblade.razer.listeners.DynamicKeyListener;
@@ -41,7 +42,7 @@ import java.util.List;
  * Created on 2014-01-24.
  * @author Sharparam
  */
-public class DynamicKey {
+public class DynamicKey extends RenderTarget {
     private final Logger log;
 
     private final List<DynamicKeyListener> listeners;
@@ -55,6 +56,8 @@ public class DynamicKey {
 
     DynamicKey(final RazerAPI.DynamicKeyType keyType, final String image, String pressedImage,
                       final DynamicKeyListener listener) throws RazerNativeException {
+        super(keyType.getTargetDisplay(), RazerAPI.DYNAMIC_KEY_HEIGHT, RazerAPI.DYNAMIC_KEY_WIDTH);
+
         log = LogManager.getLogger();
 
         if (image == null || image.isEmpty())
@@ -85,40 +88,55 @@ public class DynamicKey {
         }
     }
 
+    @Override
+    @APIComponent
+    public String getCurrentImage() {
+        return getUpImage();
+    }
+
+    @APIComponent
     public String getUpImage() {
         return upImage;
     }
 
+    @APIComponent
     public String getDownImage() {
         return downImage;
     }
 
+    @APIComponent
     public boolean hasSingleImage() {
         return upImage.equals(downImage);
     }
 
+    @APIComponent
     public RazerAPI.DynamicKeyType getKeyType() {
         return keyType;
     }
 
+    @APIComponent
     public RazerAPI.DynamicKeyState getState() {
         return state;
     }
 
+    @APIComponent
     public RazerAPI.DynamicKeyState getPreviousState() {
         return previousState;
     }
 
+    @Override
     public void setImage(final String image) throws RazerNativeException {
         setUpImage(image);
         setDownImage(image);
     }
 
+    @APIComponent
     public void setImages(final String image, final String pressedImage) throws RazerNativeException {
         setUpImage(image);
         setDownImage(pressedImage);
     }
 
+    @APIComponent
     public void setImage(final String image, final RazerAPI.DynamicKeyState state) throws RazerNativeException {
         if (state != RazerAPI.DynamicKeyState.UP && state != RazerAPI.DynamicKeyState.DOWN)
             throw new IllegalArgumentException("State can only be up or down");
@@ -135,26 +153,32 @@ public class DynamicKey {
             downImage = image;
     }
 
+    @APIComponent
     public void setUpImage(final String image) throws RazerNativeException {
         setImage(image, RazerAPI.DynamicKeyState.UP);
     }
 
+    @APIComponent
     public void setDownImage(final String image) throws RazerNativeException {
         setImage(image, RazerAPI.DynamicKeyState.DOWN);
     }
 
+    @APIComponent
     public void refresh() throws RazerNativeException {
         setImages(upImage, downImage);
     }
 
+    @APIComponent
     public void disable() {
         // TODO: Set a black image
     }
 
+    @APIComponent
     public void addListener(final DynamicKeyListener listener) {
         listeners.add(listener);
     }
 
+    @APIComponent
     public void removeListener(final DynamicKeyListener listener) {
         if (listeners.contains(listener))
             listeners.remove(listener);

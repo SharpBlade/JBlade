@@ -28,24 +28,15 @@
 
 package com.sharparam.jblade.razer;
 
-/**
- * Created on 2014-01-25.
- *
- * @author Sharparam
- */
-public enum RotateDirection {
-    CLOCKWISE,
-    COUNTER_CLOCKWISE,
-    INVALID;
+import com.sharparam.jblade.annotations.APIComponent;
 
-    static RotateDirection getFromApiValue(final int value) {
-        switch (value) {
-            case 1:
-                return CLOCKWISE;
-            case 2:
-                return COUNTER_CLOCKWISE;
-            default:
-                return INVALID;
-        }
-    }
+/**
+* Created on 2014-07-19.
+*
+* @author Sharparam
+*/
+@APIComponent
+public enum RenderMethod {
+    EVENT,
+    POLLING
 }
