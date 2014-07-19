@@ -39,7 +39,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;
@@ -127,12 +126,6 @@ public class Touchpad {
             instance = new Touchpad();
 
         return instance;
-    }
-
-    @APIComponent
-    public enum RenderMethod {
-        EVENT,
-        POLLING
     }
 
     @APIComponent
